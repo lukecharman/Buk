@@ -1,16 +1,29 @@
-//
-//  BukTests.swift
-//  BukTests
-//
-//  Created by Luke Charman on 03/08/2025.
-//
+import XCTest
+@testable import Buk
 
-import Testing
-
-struct BukTests {
-
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+final class BukTests: XCTestCase {
+    func testArtworkImageConversion() {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
+        let image = renderer.image { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+        let data = image.pngData()
+        let book = Audiobook(id: UUID(), title: "Test", fileName: "t.m4b", artworkData: data, chapters: [])
+        XCTAssertNotNil(book.artworkImage)
     }
 
+    func testPlayerChapterNavigation() {
+        let chapters = [
+            Audiobook.Chapter(id: UUID(), title: "One", startTime: 0),
+            Audiobook.Chapter(id: UUID(), title: "Two", startTime: 10)
+        ]
+        let book = Audiobook(id: UUID(), title: "Test", fileName: "t.m4b", artworkData: nil, chapters: chapters)
+        let vm = PlayerViewModel(book: book, startAt: 0)
+        XCTAssertEqual(vm.currentChapterIndex, 0)
+        vm.nextChapter()
+        XCTAssertEqual(vm.currentChapterIndex, 1)
+        vm.previousChapter()
+        XCTAssertEqual(vm.currentChapterIndex, 0)
+    }
 }
