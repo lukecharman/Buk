@@ -17,19 +17,35 @@ struct PlayerView: View {
             }
             Text(viewModel.book.title).font(.title)
             Text(viewModel.book.chapters[viewModel.currentChapterIndex].title)
+            Slider(value: Binding(get: { viewModel.chapterProgress },
+                                  set: { viewModel.seekToChapterProgress($0) }), in: 0...1)
             HStack(spacing: 40) {
                 Button(action: viewModel.previousChapter) {
                     Image(systemName: "backward.end.fill")
                 }.disabled(viewModel.currentChapterIndex == 0)
+
+                Button(action: viewModel.skipBackward15) {
+                    Image(systemName: "gobackward.15")
+                }
 
                 Button(action: viewModel.togglePlay) {
                     Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
                         .font(.largeTitle)
                 }
 
+                Button(action: viewModel.skipForward15) {
+                    Image(systemName: "goforward.15")
+                }
+
                 Button(action: viewModel.nextChapter) {
                     Image(systemName: "forward.end.fill")
                 }.disabled(viewModel.currentChapterIndex == viewModel.book.chapters.count - 1)
+            }
+            HStack {
+                Text("Speed")
+                Slider(value: $viewModel.playbackRate, in: 0.75...2.0, step: 0.25)
+                Text(String(format: "%.2fx", viewModel.playbackRate))
+                    .monospacedDigit()
             }
         }
         .padding()
