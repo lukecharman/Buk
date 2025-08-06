@@ -26,4 +26,18 @@ final class BukTests: XCTestCase {
         vm.previousChapter()
         XCTAssertEqual(vm.currentChapterIndex, 0)
     }
+
+    func testSkipForwardBackward() {
+        let chapters = [
+            Audiobook.Chapter(id: UUID(), title: "One", startTime: 0),
+            Audiobook.Chapter(id: UUID(), title: "Two", startTime: 30)
+        ]
+        let book = Audiobook(id: UUID(), title: "Test", fileName: "t.m4b", artworkData: nil, chapters: chapters)
+        let vm = PlayerViewModel(book: book, startAt: 0)
+        XCTAssertEqual(vm.elapsedTime, 0, accuracy: 0.01)
+        vm.skipForward15()
+        XCTAssertEqual(vm.elapsedTime, 15, accuracy: 0.01)
+        vm.skipBackward15()
+        XCTAssertEqual(vm.elapsedTime, 0, accuracy: 0.01)
+    }
 }
