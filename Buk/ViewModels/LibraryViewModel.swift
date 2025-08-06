@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import AVFoundation
 import SwiftUI
@@ -37,7 +38,7 @@ final class LibraryViewModel: ObservableObject {
     }
 
     func importBook(from url: URL) async throws {
-        let destination = Self.libraryFolder.appendingPathComponent(url.lastPathComponent)
+        var destination = Self.libraryFolder.appendingPathComponent(url.lastPathComponent)
         if !FileManager.default.fileExists(atPath: destination.path) {
             try FileManager.default.copyItem(at: url, to: destination)
             var values = URLResourceValues()
@@ -80,11 +81,11 @@ final class LibraryViewModel: ObservableObject {
         var result: [Audiobook.Chapter] = []
         let locales = try await asset.load(.availableChapterLocales)
         guard let locale = locales.first else { return result }
-        let groups = try await asset.chapterMetadataGroups(withTitleLocale: locale)
+        let groups = try await asset.loadChapterMetadataGroups(withTitleLocale: locale)
         for (index, group) in groups.enumerated() {
-            let items = try await group.load(.items)
+            let items = group.items
             let title = (try? await items.first(where: { $0.commonKey?.rawValue == "title" })?.load(.stringValue)) ?? "Chapter \(index + 1)"
-            let timeRange = try await group.load(.timeRange)
+            let timeRange = group.timeRange
             result.append(.init(id: UUID(), title: title, startTime: timeRange.start.seconds))
         }
         return result
