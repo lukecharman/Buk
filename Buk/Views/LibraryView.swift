@@ -27,7 +27,9 @@ struct LibraryView: View {
                           allowsMultipleSelection: false) { result in
                 switch result {
                 case .success(let url):
-                    Task { try? await viewModel.importBook(from: url) }
+                  if let first = url.first {
+                    Task { try? await viewModel.importBook(from: first) }
+                  }
                 case .failure:
                     break
                 }
