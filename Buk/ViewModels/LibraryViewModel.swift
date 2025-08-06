@@ -16,6 +16,11 @@ final class LibraryViewModel: ObservableObject {
 
     init() {
         load()
+        if books.isEmpty {
+            Task { @MainActor in
+                await importBundledAudiobooks()
+            }
+        }
     }
 
     private func load() {
@@ -62,6 +67,13 @@ final class LibraryViewModel: ObservableObject {
         let book = Audiobook(id: UUID(), title: title, fileName: destination.lastPathComponent, artworkData: artworkData, chapters: chapters)
         books.append(book)
         save()
+    }
+
+    private func importBundledAudiobooks() async {
+        guard let urls = Bundle.main.urls(forResourcesWithExtension: "m4b", subdirectory: nil) else { return }
+        for url in urls {
+            try? await importBook(from: url)
+        }
     }
 
     private static func loadChapters(for asset: AVURLAsset) async throws -> [Audiobook.Chapter] {
