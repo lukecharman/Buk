@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 struct LibraryView: View {
     @StateObject private var viewModel = LibraryViewModel()
     @State private var showImporter = false
+    @State private var showLibrivox = false
 
     var body: some View {
         NavigationStack {
@@ -17,7 +18,10 @@ struct LibraryView: View {
             .navigationTitle("Library")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showImporter = true }) {
+                    Menu {
+                        Button("Files") { showImporter = true }
+                        Button("Librivox") { showLibrivox = true }
+                    } label: {
                         Image(systemName: "plus")
                     }
                 }
@@ -32,6 +36,11 @@ struct LibraryView: View {
                   }
                 case .failure:
                     break
+                }
+            }
+            .sheet(isPresented: $showLibrivox) {
+                NavigationStack {
+                    LibrivoxSearchView(library: viewModel)
                 }
             }
         }
