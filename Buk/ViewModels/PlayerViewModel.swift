@@ -25,7 +25,9 @@ final class PlayerViewModel: ObservableObject {
         let url = LibraryViewModel.libraryFolder.appendingPathComponent(book.fileName)
         self.player = AVPlayer(url: url)
         addTimeObserver()
-        seek(to: book.chapters[index].startTime)
+        if !book.chapters.isEmpty {
+            seek(to: book.chapters[index].startTime)
+        }
     }
 
     deinit {
@@ -76,10 +78,11 @@ final class PlayerViewModel: ObservableObject {
     }
 
     var currentChapterStart: TimeInterval {
-        book.chapters[currentChapterIndex].startTime
+        book.chapters.isEmpty ? 0 : book.chapters[currentChapterIndex].startTime
     }
 
     var currentChapterEnd: TimeInterval {
+        if book.chapters.isEmpty { return totalDuration }
         if currentChapterIndex + 1 < book.chapters.count {
             return book.chapters[currentChapterIndex + 1].startTime
         } else {

@@ -26,8 +26,8 @@ final class LibrivoxViewModel: ObservableObject {
         do {
             let (metaData, _) = try await URLSession.shared.data(from: book.metadataURL)
             let archive = try JSONDecoder().decode(ArchiveMetadata.self, from: metaData)
-            guard let file = archive.files.first(where: { $0.name.hasSuffix(".m4b") }),
-                  let url = URL(string: file.name, relativeTo: book.downloadBaseURL) else { return }
+            guard let file = archive.files.first(where: { $0.name.hasSuffix(".m4b") }) else { return }
+            let url = book.downloadBaseURL.appendingPathComponent(file.name)
             let (tempURL, _) = try await URLSession.shared.download(from: url)
             try await library.importBook(from: tempURL)
         } catch {
