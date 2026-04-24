@@ -16,7 +16,9 @@ struct PlayerView: View {
                     .frame(height: 200)
             }
             Text(viewModel.book.title).font(.title)
-            Text(viewModel.book.chapters[viewModel.currentChapterIndex].title)
+            if !viewModel.book.chapters.isEmpty {
+                Text(viewModel.book.chapters[viewModel.currentChapterIndex].title)
+            }
             Slider(value: Binding(get: { viewModel.chapterProgress },
                                   set: { viewModel.seekToChapterProgress($0) }), in: 0...1)
             HStack(spacing: 40) {

@@ -30,9 +30,13 @@ struct LibraryView: View {
                           allowedContentTypes: [UTType(filenameExtension: "m4b")!],
                           allowsMultipleSelection: false) { result in
                 switch result {
-                case .success(let url):
-                  if let first = url.first {
-                    Task { try? await viewModel.importBook(from: first) }
+                case .success(let urls):
+                  if let first = urls.first {
+                    let accessed = first.startAccessingSecurityScopedResource()
+                    Task {
+                        defer { if accessed { first.stopAccessingSecurityScopedResource() } }
+                        try? await viewModel.importBook(from: first)
+                    }
                   }
                 case .failure:
                     break
