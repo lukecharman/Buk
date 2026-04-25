@@ -1,0 +1,16 @@
+{
+  "source": "/Users/luke/Sources/Buk/Buk/Views/Discover/CatalogBookDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Download",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 75
+        }
+      }
+    ]
+  },
+  "version": 1
+}

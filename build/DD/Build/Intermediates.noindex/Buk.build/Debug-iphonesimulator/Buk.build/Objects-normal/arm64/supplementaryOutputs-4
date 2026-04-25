@@ -1,0 +1,23 @@
+{
+  "/Users/luke/Sources/Buk/Buk/Views/Discover/CatalogBookViews.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CatalogBookViews.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CatalogBookViews.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CatalogBookViews.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CatalogBookViews.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CatalogBookViews.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Views/Discover/DiscoverView.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/DiscoverView.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/DiscoverView.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/DiscoverView.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/DiscoverView.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/DiscoverView.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Views/Library/ChapterListView.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.swiftdeps"
+  }
+}

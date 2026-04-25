@@ -1,0 +1,24 @@
+{
+  "source": "/Users/luke/Sources/Buk/Buk/Views/Library/BookDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Close",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Narrated by %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 126
+        }
+      }
+    ]
+  },
+  "version": 1
+}

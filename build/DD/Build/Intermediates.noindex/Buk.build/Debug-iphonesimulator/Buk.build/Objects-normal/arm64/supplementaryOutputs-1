@@ -1,0 +1,23 @@
+{
+  "/Users/luke/Sources/Buk/Buk/Services/BookImporter.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/BookImporter.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/BookImporter.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/BookImporter.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/BookImporter.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/BookImporter.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Services/LibraryStore.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryStore.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryStore.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryStore.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryStore.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryStore.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Services/NowPlayingController.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/NowPlayingController.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/NowPlayingController.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/NowPlayingController.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/NowPlayingController.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/NowPlayingController.swiftdeps"
+  }
+}

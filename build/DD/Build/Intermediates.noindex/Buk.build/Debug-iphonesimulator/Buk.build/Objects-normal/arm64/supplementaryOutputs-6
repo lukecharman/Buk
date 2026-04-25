@@ -1,0 +1,30 @@
+{
+  "/Users/luke/Sources/Buk/Buk/Views/Library/CassetteTileView.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteTileView.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteTileView.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteTileView.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteTileView.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteTileView.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Views/Library/ChapterListView.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/ChapterListView.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Views/Library/LibraryView.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryView.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryView.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryView.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryView.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/LibraryView.swiftdeps"
+  },
+  "/Users/luke/Sources/Buk/Buk/Views/Player/CassetteDeckView.swift" : {
+    "const-values" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteDeckView.swiftconstvalues",
+    "dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteDeckView.d",
+    "diagnostics" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteDeckView.dia",
+    "object" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteDeckView.o",
+    "swift-dependencies" : "/Users/luke/Sources/Buk/build/DD/Build/Intermediates.noindex/Buk.build/Debug-iphonesimulator/Buk.build/Objects-normal/arm64/CassetteDeckView.swiftdeps"
+  }
+}

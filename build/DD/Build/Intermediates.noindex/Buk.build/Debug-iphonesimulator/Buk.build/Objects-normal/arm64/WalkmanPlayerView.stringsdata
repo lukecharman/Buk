@@ -1,0 +1,168 @@
+{
+  "source": "/Users/luke/Sources/Buk/Buk/Views/Player/WalkmanPlayerView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Playback error",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Chapters",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Close player",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "Now Playing",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 104
+        }
+      },
+      {
+        "comment": "",
+        "key": "Chapters",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "▶ PLAY",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 265
+        }
+      },
+      {
+        "comment": "",
+        "key": "❚❚ PAUSE",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 265
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pause",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 328
+        }
+      },
+      {
+        "comment": "",
+        "key": "Play",
+        "location": {
+          "startingColumn": 65,
+          "startingLine": 328
+        }
+      },
+      {
+        "comment": "",
+        "key": "Previous chapter",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 296
+        }
+      },
+      {
+        "comment": "",
+        "key": "Skip back %lld seconds",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 303
+        }
+      },
+      {
+        "comment": "",
+        "key": "Skip forward %lld seconds",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 314
+        }
+      },
+      {
+        "comment": "",
+        "key": "Next chapter",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 319
+        }
+      },
+      {
+        "comment": "",
+        "key": "BUKMAN",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 387
+        }
+      },
+      {
+        "comment": "",
+        "key": "STEREO CASSETTE PLAYER",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 391
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sleep Timer",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 463
+        }
+      },
+      {
+        "comment": "",
+        "key": "Off",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 454
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld minutes",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 454
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 467
+        }
+      }
+    ]
+  },
+  "version": 1
+}

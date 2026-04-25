@@ -1,0 +1,32 @@
+{
+  "source": "/Users/luke/Sources/Buk/Buk/Views/Player/CassetteDeckView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@ cassette",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "BUK · CHROME · 90",
+        "location": {
+          "startingColumn": 14,
+          "startingLine": 307
+        }
+      },
+      {
+        "comment": "",
+        "key": "A",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 182
+        }
+      }
+    ]
+  },
+  "version": 1
+}

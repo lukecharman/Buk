@@ -46,16 +46,32 @@ struct Audiobook: Identifiable, Codable, Hashable {
 
 extension Audiobook {
     /// Returns the artwork as a SwiftUI `Image` if the cached file exists and decodes.
+    /// Decoded `UIImage`/`NSImage` instances are cached per artwork filename so the
+    /// row and detail screens share the same backing image — without this, the
+    /// matched-geometry morph re-decodes from disk and produces a brief flicker
+    /// as the destination's freshly-decoded copy swaps in.
     func artworkImage(in folder: URL) -> Image? {
-        guard
-            let artworkFileName,
-            let data = try? Data(contentsOf: folder.appendingPathComponent(artworkFileName))
-        else { return nil }
+        guard let artworkFileName else { return nil }
+        let key = artworkFileName as NSString
         #if canImport(UIKit)
-        guard let uiImage = UIImage(data: data) else { return nil }
+        if let cached = ArtworkCache.shared.object(forKey: key) {
+            return Image(uiImage: cached)
+        }
+        guard
+            let data = try? Data(contentsOf: folder.appendingPathComponent(artworkFileName)),
+            let uiImage = UIImage(data: data)
+        else { return nil }
+        ArtworkCache.shared.setObject(uiImage, forKey: key)
         return Image(uiImage: uiImage)
         #elseif canImport(AppKit)
-        guard let nsImage = NSImage(data: data) else { return nil }
+        if let cached = ArtworkCache.shared.object(forKey: key) {
+            return Image(nsImage: cached)
+        }
+        guard
+            let data = try? Data(contentsOf: folder.appendingPathComponent(artworkFileName)),
+            let nsImage = NSImage(data: data)
+        else { return nil }
+        ArtworkCache.shared.setObject(nsImage, forKey: key)
         return Image(nsImage: nsImage)
         #else
         return nil
@@ -69,3 +85,18 @@ extension Audiobook {
         return 0
     }
 }
+
+/// In-process cache for decoded artwork images, keyed by filename. Shared by
+/// the library row and detail screen so the matched-geometry morph hands off
+/// the same image instance instead of re-decoding from disk.
+#if canImport(UIKit)
+final class ArtworkCache {
+    static let shared = NSCache<NSString, UIImage>()
+    private init() {}
+}
+#elseif canImport(AppKit)
+final class ArtworkCache {
+    static let shared = NSCache<NSString, NSImage>()
+    private init() {}
+}
+#endif

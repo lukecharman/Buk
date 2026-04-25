@@ -12,6 +12,8 @@ final class LibraryViewModel: ObservableObject {
     @Published private(set) var progress: [UUID: PlaybackProgress] = [:]
     @Published private(set) var isImporting = false
     @Published var importError: String?
+    /// The book currently presented in the Walkman player overlay, if any.
+    @Published var presentingPlayerBook: Audiobook?
     /// Active downloads keyed by `CatalogBook.id`.
     @Published private(set) var activeDownloads: [String: Double] = [:]
 
