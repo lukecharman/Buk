@@ -16,6 +16,9 @@ struct BookDetailView: View {
     /// Drives the title/author slide-down + fade-in after the cassette enter
     /// morph has settled. On dismiss we run this in reverse with a blur.
     @State private var titleVisible = false
+    /// Drives the metrics / Play / chapters block sliding up from the bottom
+    /// after the title has appeared. Reverses on dismiss.
+    @State private var detailsVisible = false
     /// Fades the opaque detail background in during the enter morph and back
     /// out on dismiss, so the blurred/scaled library underneath is visible
     /// while the cassette is travelling.
@@ -25,18 +28,7 @@ struct BookDetailView: View {
     /// tracking the cassette's frame every render — that frame tracking is
     /// what was making the drag jank.
     @State private var matchActive = true
-    /// Live drag distance during a gesture. `@GestureState` resets to zero
-    /// automatically when the gesture ends, and updates without triggering a
-    /// full state-mutation rebuild cycle each frame.
-    @GestureState private var dragTranslation: CGFloat = 0
-    /// Persists the drag distance after the gesture ends so we can spring it
-    /// back to zero (or hand off to dismiss).
-    @State private var settledDragOffset: CGFloat = 0
 
-    private var dragOffset: CGFloat { dragTranslation + settledDragOffset }
-
-    /// Drag distance at which a release will dismiss the screen.
-    private let dismissThreshold: CGFloat = 120
     /// Distance the title block sits "behind" the tape before it slides down.
     private let titleSlideDistance: CGFloat = 70
 
@@ -70,11 +62,11 @@ struct BookDetailView: View {
                     .blur(radius: titleVisible ? 0 : 18)
                     .zIndex(0)
 
-                Spacer(minLength: 0)
+                detailsBlock
+                    .opacity(detailsVisible ? 1 : 0)
+                    .offset(y: detailsVisible ? 0 : 60)
+                    .blur(radius: detailsVisible ? 0 : 12)
             }
-            .offset(y: dragOffset)
-            .animation(nil, value: dragTranslation)
-            .simultaneousGesture(dragToDismiss)
             .task {
                 // Fade the opaque background in alongside the matched-geometry
                 // morph so the recede/blur on the library underneath is
@@ -93,6 +85,11 @@ struct BookDetailView: View {
                 // fight the matched-geometry frame tracker.
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 matchActive = false
+                // Bring the rest of the detail content up after the title has
+                // landed.
+                withAnimation(.spring(response: 0.55, dampingFraction: 0.85)) {
+                    detailsVisible = true
+                }
             }
 
             closeButton
@@ -142,6 +139,71 @@ struct BookDetailView: View {
         .padding(.horizontal)
     }
 
+    /// The metrics row, Play/Resume button, and chapter list. Slides up from
+    /// the bottom after the title has appeared, and reverses on close.
+    private var detailsBlock: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                metricsRow
+
+                Button {
+                    library.presentingPlayerBook = book
+                } label: {
+                    Label(progressFraction > 0.01 ? "Resume" : "Play",
+                          systemImage: "play.fill")
+                        .font(.headline)
+                        .padding(.horizontal, 28).padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                .cassetteGlass(cornerRadius: 22, tint: CassettePalette.recordRed.opacity(0.85))
+
+                ChapterListView(book: book,
+                                progress: library.progress(for: book),
+                                onSelect: nil)
+                    .padding(.horizontal)
+            }
+            .padding(.top, 4)
+            .padding(.bottom, 32)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+    }
+
+    @ViewBuilder
+    private var metricsRow: some View {
+        HStack(spacing: 18) {
+            metric("Length", value: formattedHours(book.duration))
+            metric("Chapters", value: "\(book.chapters.count)")
+            metric("Source", value: sourceLabel)
+        }
+        .padding(.horizontal)
+    }
+
+    private func metric(_ title: String, value: String) -> some View {
+        VStack(spacing: 2) {
+            Text(value).font(.headline)
+            Text(title).font(.caption2).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .cassetteGlass(cornerRadius: 14)
+    }
+
+    private var sourceLabel: String {
+        switch book.source {
+        case .importedFile: "Files"
+        case .librivox: "LibriVox"
+        case .internetArchive: "Archive"
+        case .bundled: "Bundled"
+        }
+    }
+
+    private func formattedHours(_ seconds: TimeInterval) -> String {
+        let h = Int(seconds) / 3600
+        let m = (Int(seconds) % 3600) / 60
+        if h > 0 { return "\(h)h \(m)m" }
+        return "\(m)m"
+    }
+
     private var closeButton: some View {
         Button(action: closeAnimated) {
             ZStack {
@@ -159,52 +221,20 @@ struct BookDetailView: View {
         .accessibilityLabel("Close")
     }
 
-    /// Blur the title block back behind the tape, then re-arm matched geometry
-    /// and hand off to the parent for the cassette morph back to the row.
+    /// Animate every dismiss-time effect in one go: title blurring back behind
+    /// the tape, the background fading out, and (via the parent's withAnimation
+    /// in `onClose`) the cassette morphing home — all in a single transaction
+    /// so the screen comes apart in one motion rather than two stages.
     private func closeAnimated() {
-        withAnimation(.easeIn(duration: 0.22)) {
+        // Re-arm the matched ID synchronously (no animation), so the parent's
+        // morph driven by `onClose` has a destination to morph back from.
+        matchActive = true
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             titleVisible = false
-        }
-        // Fade the background out in parallel so the library blurs back in
-        // underneath as the cassette morphs home.
-        withAnimation(.easeIn(duration: 0.4)) {
+            detailsVisible = false
             backgroundVisible = false
         }
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 220_000_000)
-            // Re-arm the matched ID so the parent's withAnimation morphs the
-            // cassette back to the row instead of just fading.
-            matchActive = true
-            try? await Task.sleep(nanoseconds: 16_000_000)
-            onClose()
-        }
-    }
-
-    // MARK: - Drag-to-dismiss
-
-    private var dragToDismiss: some Gesture {
-        DragGesture(minimumDistance: 8, coordinateSpace: .local)
-            .updating($dragTranslation) { value, state, transaction in
-                // Disable any ambient animation so the offset tracks the
-                // finger 1:1 instead of being interpolated each frame.
-                transaction.animation = nil
-                let raw = value.translation.height
-                state = raw > 0 ? raw : raw / 6
-            }
-            .onEnded { value in
-                let projected = value.predictedEndTranslation.height
-                if projected > dismissThreshold || value.translation.height > dismissThreshold {
-                    // User has physically pulled the cassette away — fade
-                    // dismiss without re-arming the matched morph (otherwise
-                    // the cassette would yank back up before morphing).
-                    settledDragOffset = value.translation.height
-                    onClose()
-                } else {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
-                        settledDragOffset = 0
-                    }
-                }
-            }
+        onClose()
     }
 
     private var cassetteBackgroundFill: some View {
