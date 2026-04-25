@@ -16,6 +16,10 @@ struct BookDetailView: View {
     /// Drives the title/author slide-down + fade-in after the cassette enter
     /// morph has settled. On dismiss we run this in reverse with a blur.
     @State private var titleVisible = false
+    /// Fades the opaque detail background in during the enter morph and back
+    /// out on dismiss, so the blurred/scaled library underneath is visible
+    /// while the cassette is travelling.
+    @State private var backgroundVisible = false
     /// While true, the cassette carries its matched-geometry ID. We turn this
     /// off once the enter morph has settled so the matched system isn't
     /// tracking the cassette's frame every render — that frame tracking is
@@ -50,6 +54,7 @@ struct BookDetailView: View {
         ZStack(alignment: .topLeading) {
             cassetteBackgroundFill
                 .ignoresSafeArea()
+                .opacity(backgroundVisible ? 1 : 0)
 
             VStack(spacing: 20) {
                 cassette
@@ -71,6 +76,12 @@ struct BookDetailView: View {
             .animation(nil, value: dragTranslation)
             .simultaneousGesture(dragToDismiss)
             .task {
+                // Fade the opaque background in alongside the matched-geometry
+                // morph so the recede/blur on the library underneath is
+                // visible while the cassette travels.
+                withAnimation(.easeOut(duration: 0.45)) {
+                    backgroundVisible = true
+                }
                 // Wait for the matched-geometry zoom to settle, then slide the
                 // title/author down from behind the tape.
                 try? await Task.sleep(nanoseconds: 350_000_000)
@@ -153,6 +164,11 @@ struct BookDetailView: View {
     private func closeAnimated() {
         withAnimation(.easeIn(duration: 0.22)) {
             titleVisible = false
+        }
+        // Fade the background out in parallel so the library blurs back in
+        // underneath as the cassette morphs home.
+        withAnimation(.easeIn(duration: 0.4)) {
+            backgroundVisible = false
         }
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 220_000_000)

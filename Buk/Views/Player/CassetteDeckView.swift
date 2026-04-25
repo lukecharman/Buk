@@ -148,17 +148,6 @@ struct CassetteDeckView: View {
                 )
                 .overlay(
                     HStack(spacing: 10) {
-                        if let cover {
-                            cover
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: labelHeight - 14, height: labelHeight - 14)
-                                .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2, style: .continuous)
-                                        .strokeBorder(.black.opacity(0.2), lineWidth: 0.5)
-                                )
-                        }
                         VStack(alignment: .leading, spacing: 2) {
                             Spacer(minLength: labelHeight * 0.13)
                             if showsLabelText {

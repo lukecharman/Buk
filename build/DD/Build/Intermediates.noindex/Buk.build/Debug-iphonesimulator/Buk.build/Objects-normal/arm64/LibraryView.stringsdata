@@ -55,7 +55,7 @@
         "key": "Your shelf is empty",
         "location": {
           "startingColumn": 18,
-          "startingLine": 148
+          "startingLine": 153
         }
       },
       {
@@ -63,7 +63,7 @@
         "key": "Import .m4b audiobooks from Files, or browse Discover for free public-domain titles.",
         "location": {
           "startingColumn": 18,
-          "startingLine": 150
+          "startingLine": 155
         }
       },
       {
@@ -71,7 +71,7 @@
         "key": "Import from Files",
         "location": {
           "startingColumn": 23,
-          "startingLine": 158
+          "startingLine": 163
         }
       }
     ]

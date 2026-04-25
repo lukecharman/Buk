@@ -107,6 +107,11 @@ struct LibraryView: View {
                     }
                 }
                 .padding()
+                // Recede the rows themselves while a tape is zoomed — the
+                // background, scroll view bounds, and nav bar all stay put.
+                .scaleEffect(selectedBook == nil ? 1 : 0.92)
+                .blur(radius: selectedBook == nil ? 0 : 18)
+                .animation(zoomAnimation, value: selectedBook?.id)
             }
         }
     }
