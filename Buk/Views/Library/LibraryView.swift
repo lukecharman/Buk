@@ -8,26 +8,22 @@ struct LibraryView: View {
     @ObservedObject var library: LibraryViewModel
     @State private var showImporter = false
     @State private var selectedBook: Audiobook?
+    /// Bumped by the toolbar's close action to ask the presented detail view
+    /// to run its dismiss animation. The detail observes changes and calls its
+    /// own `closeAnimated()` so all the fade/blur/morph stays in one place.
+    @State private var detailCloseRequest: UUID?
     @Namespace private var heroNamespace
 
     private let columns = [GridItem(.flexible())]
     private let zoomAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.85)
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             NavigationStack {
                 content
                     .cassetteBackground()
                     .navigationTitle("Library")
                     .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button { showImporter = true } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel("Import audiobook")
-                        }
-                    }
                     .fileImporter(
                         isPresented: $showImporter,
                         allowedContentTypes: importContentTypes,
@@ -70,12 +66,40 @@ struct LibraryView: View {
                     book: book,
                     library: library,
                     transitionNamespace: heroNamespace,
+                    closeRequest: detailCloseRequest,
                     onClose: dismiss
                 )
                 .transition(.opacity)
                 .zIndex(1)
             }
+
+            // Floating top-right button. Lives outside the NavigationStack so
+            // it stays above the detail overlay and morphs from "+" to "×"
+            // when a tape is open.
+            actionButton
+                .padding(.trailing, 16)
+                .padding(.top, 8)
+                .zIndex(2)
         }
+    }
+
+    private var actionButton: some View {
+        Button {
+            if selectedBook == nil {
+                showImporter = true
+            } else {
+                detailCloseRequest = UUID()
+            }
+        } label: {
+            Image(systemName: "plus")
+                .font(.title2.weight(.semibold))
+                .rotationEffect(.degrees(selectedBook == nil ? 0 : 45))
+                .animation(zoomAnimation, value: selectedBook?.id)
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+        .accessibilityLabel(selectedBook == nil ? "Import audiobook" : "Close")
     }
 
     @ViewBuilder

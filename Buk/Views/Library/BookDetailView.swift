@@ -11,6 +11,10 @@ struct BookDetailView: View {
     let book: Audiobook
     @ObservedObject var library: LibraryViewModel
     let transitionNamespace: Namespace.ID?
+    /// External close trigger — when this token changes, run our dismiss
+    /// animation. Lets the parent's toolbar button drive the same fade/morph
+    /// as if the user had tapped a local close control.
+    let closeRequest: UUID?
     let onClose: () -> Void
 
     /// Drives the title/author slide-down + fade-in after the cassette enter
@@ -29,21 +33,34 @@ struct BookDetailView: View {
     /// what was making the drag jank.
     @State private var matchActive = true
 
+    /// Live horizontal translation while the user is dragging right to dismiss.
+    @State private var dragX: CGFloat = 0
+    /// Direction lock for the active touch: once we know which axis the user
+    /// is on, we commit to it so vertical scrolling and horizontal dismiss
+    /// don't fight each other.
+    @State private var dragAxis: DragAxis?
+
+    private enum DragAxis { case horizontal, vertical }
+
     /// Distance the title block sits "behind" the tape before it slides down.
     private let titleSlideDistance: CGFloat = 70
+    /// How far the user must drag right to commit to a dismiss.
+    private let dismissThreshold: CGFloat = 120
 
     init(book: Audiobook,
          library: LibraryViewModel,
          transitionNamespace: Namespace.ID? = nil,
+         closeRequest: UUID? = nil,
          onClose: @escaping () -> Void = {}) {
         self.book = book
         self._library = ObservedObject(wrappedValue: library)
         self.transitionNamespace = transitionNamespace
+        self.closeRequest = closeRequest
         self.onClose = onClose
     }
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .topTrailing) {
             cassetteBackgroundFill
                 .ignoresSafeArea()
                 .opacity(backgroundVisible ? 1 : 0)
@@ -67,6 +84,9 @@ struct BookDetailView: View {
                     .offset(y: detailsVisible ? 0 : 60)
                     .blur(radius: detailsVisible ? 0 : 12)
             }
+            .offset(x: max(0, dragX))
+            .opacity(1 - min(0.4, max(0, dragX) / 600))
+            .simultaneousGesture(dismissDrag)
             .task {
                 // Fade the opaque background in alongside the matched-geometry
                 // morph so the recede/blur on the library underneath is
@@ -91,10 +111,10 @@ struct BookDetailView: View {
                     detailsVisible = true
                 }
             }
-
-            closeButton
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
+            .onChange(of: closeRequest) { _, newValue in
+                guard newValue != nil else { return }
+                closeAnimated()
+            }
         }
     }
 
@@ -166,6 +186,7 @@ struct BookDetailView: View {
             .padding(.bottom, 32)
         }
         .scrollBounceBehavior(.basedOnSize)
+        .scrollDisabled(dragAxis == .horizontal)
     }
 
     @ViewBuilder
@@ -204,23 +225,6 @@ struct BookDetailView: View {
         return "\(m)m"
     }
 
-    private var closeButton: some View {
-        Button(action: closeAnimated) {
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(Circle().strokeBorder(.white.opacity(0.15), lineWidth: 0.5))
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.primary)
-            }
-            .frame(width: 40, height: 40)
-            .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Close")
-    }
-
     /// Animate every dismiss-time effect in one go: title blurring back behind
     /// the tape, the background fading out, and (via the parent's withAnimation
     /// in `onClose`) the cassette morphing home — all in a single transaction
@@ -235,6 +239,39 @@ struct BookDetailView: View {
             backgroundVisible = false
         }
         onClose()
+    }
+
+    /// Horizontal swipe-from-anywhere to dismiss back to the library. Tracks
+    /// the finger live and commits if the user passes the threshold or flicks.
+    private var dismissDrag: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                if dragAxis == nil {
+                    let dx = abs(value.translation.width)
+                    let dy = abs(value.translation.height)
+                    guard max(dx, dy) > 6 else { return }
+                    // Only treat as a dismiss swipe if it starts from the left
+                    // edge of the screen, like the system back gesture.
+                    let fromEdge = value.startLocation.x <= 24
+                    dragAxis = (fromEdge && dx > dy) ? .horizontal : .vertical
+                }
+                guard dragAxis == .horizontal, value.translation.width > 0 else { return }
+                dragX = value.translation.width
+            }
+            .onEnded { value in
+                let wasHorizontal = dragAxis == .horizontal
+                dragAxis = nil
+                guard wasHorizontal else { return }
+                let committed = value.translation.width > dismissThreshold
+                    || value.predictedEndTranslation.width > 240
+                if committed {
+                    closeAnimated()
+                } else {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                        dragX = 0
+                    }
+                }
+            }
     }
 
     private var cassetteBackgroundFill: some View {
