@@ -38,14 +38,14 @@ enum CatalogCategory: String, CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .featured: "Featured"
-        case .popular: "Most Popular"
-        case .fiction: "Fiction"
-        case .nonFiction: "Non-Fiction"
-        case .childrens: "Children's"
-        case .poetry: "Poetry"
-        case .mystery: "Mystery"
-        case .scienceFiction: "Science Fiction"
+        case .featured: "⭐ Featured"
+        case .popular: "🔥 Most Popular"
+        case .fiction: "📖 Fiction"
+        case .nonFiction: "📚 Non-Fiction"
+        case .childrens: "🧸 Children's"
+        case .poetry: "🪶 Poetry"
+        case .mystery: "🔍 Mystery"
+        case .scienceFiction: "🚀 Science Fiction"
         }
     }
 }
