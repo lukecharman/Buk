@@ -46,9 +46,9 @@ struct BookGraphicView: View {
                                 perspective: 0.7
                             )
                         spine(w: w, h: h, color: coverColor)
-                        frontCover(w: w, h: h, color: coverColor)
+                        frontCover(w: w, h: h, color: coverColor, openness: openness)
                             .rotation3DEffect(
-                                .degrees(-150 * openness),
+                                .degrees(-170 * openness),
                                 axis: (x: 0, y: 1, z: 0),
                                 anchor: .leading,
                                 anchorZ: 0,
@@ -73,9 +73,27 @@ struct BookGraphicView: View {
 
     // MARK: - Faces
 
-    /// The front cover — coloured cloth with an inset gilt frame line and the
-    /// title in serif type. Hinges from the spine when `openness` increases.
-    private func frontCover(w: CGFloat, h: CGFloat, color: Color) -> some View {
+    /// The front cover — coloured cloth with a gilt frame and serif title on
+    /// the outside, plain endpaper on the inside. The back face is
+    /// pre-mirrored 180° so it appears upright once the parent has rotated
+    /// past flat; a hard opacity flip at the half-way point swaps which face
+    /// is visible, so the viewer never sees the title text mirrored.
+    private func frontCover(w: CGFloat, h: CGFloat, color: Color, openness: Double) -> some View {
+        let showingBack = openness > 0.5
+        return ZStack {
+            coverFrontFace(w: w, h: h, color: color)
+                .opacity(showingBack ? 0 : 1)
+
+            coverBackFace(w: w, h: h, color: color)
+                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                .opacity(showingBack ? 1 : 0)
+        }
+        .frame(width: w, height: h)
+    }
+
+    /// Outer face of the cover — coloured cloth, inset gilt frame line, and
+    /// the title in serif type.
+    private func coverFrontFace(w: CGFloat, h: CGFloat, color: Color) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 4, style: .continuous)
                 .fill(LinearGradient(
@@ -102,6 +120,18 @@ struct BookGraphicView: View {
                 }
                 .padding(max(10, w * 0.12))
             }
+        }
+        .frame(width: w, height: h)
+    }
+
+    /// Inside of the front cover — solid endpaper-style fill (slight tint of
+    /// the cover colour over cream) with a soft inner shadow at the spine.
+    private func coverBackFace(w: CGFloat, h: CGFloat, color: Color) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .fill(Color(red: 0.93, green: 0.89, blue: 0.79))
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .fill(color.opacity(0.10))
         }
         .frame(width: w, height: h)
     }
