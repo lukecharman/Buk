@@ -18,4 +18,15 @@ nonisolated protocol CatalogProvider: Sendable {
     func books(in category: CatalogCategory, limit: Int) async throws -> [CatalogBook]
     /// Resolves the actual downloadable audio file for a book.
     func resolveDownloadURL(for book: CatalogBook) async throws -> URL
+
+    /// Browse rows shown for this provider in Discover, in display order. Providers
+    /// declare their own list so each catalogue can surface categories that actually
+    /// match its content (e.g. literary genres for LibriVox vs. radio genres for OTR).
+    var browseCategories: [CatalogCategory] { get }
+}
+
+extension CatalogProvider {
+    var browseCategories: [CatalogCategory] {
+        [.featured, .fiction, .nonFiction, .childrens, .poetry, .mystery, .scienceFiction]
+    }
 }

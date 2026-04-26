@@ -53,6 +53,10 @@ nonisolated struct LibrivoxProvider: CatalogProvider {
             items.append(URLQueryItem(name: "genre", value: "Mystery"))
         case .scienceFiction:
             items.append(URLQueryItem(name: "genre", value: "Science Fiction"))
+        // Categories that aren't part of LibriVox's browse list — return nothing
+        // so a misrouted request degrades gracefully instead of crashing.
+        case .comedy, .drama, .western, .horror:
+            return []
         }
         components.queryItems = items
         return try await fetchBooks(at: components.url!)
@@ -115,7 +119,9 @@ private struct LibrivoxResponse: Decodable {
 }
 
 private struct LibrivoxAPIBook: Decodable {
-    let id: Int
+    // LibriVox returns numeric fields as JSON strings (e.g. "id": "47"),
+    // so decode as String to avoid a typeMismatch that would fail the whole feed.
+    let id: String
     let title: String
     let description: String?
     let url_iarchive: String?

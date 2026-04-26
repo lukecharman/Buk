@@ -23,10 +23,14 @@ final class CatalogProviderTests: XCTestCase {
         XCTAssertFalse(p.displayName.isEmpty)
         XCTAssertFalse(p.attribution.isEmpty)
     }
-    func testInternetArchiveProviderIdentity() {
-        let p = InternetArchiveProvider()
-        XCTAssertEqual(p.id, "internetArchive")
+    func testOldTimeRadioProviderIdentity() {
+        let p = OldTimeRadioProvider()
+        XCTAssertEqual(p.id, "oldTimeRadio")
         XCTAssertTrue(p.supportsCategories)
+        XCTAssertFalse(p.displayName.isEmpty)
+        XCTAssertFalse(p.attribution.isEmpty)
+        XCTAssertTrue(p.browseCategories.contains(.mystery))
+        XCTAssertFalse(p.browseCategories.contains(.poetry))
     }
 
     func testCatalogCategoryTitles() {

@@ -33,6 +33,10 @@ enum CatalogCategory: String, CaseIterable, Identifiable, Hashable {
     case poetry
     case mystery
     case scienceFiction = "science-fiction"
+    case comedy
+    case drama
+    case western
+    case horror
 
     var id: String { rawValue }
 
@@ -46,6 +50,10 @@ enum CatalogCategory: String, CaseIterable, Identifiable, Hashable {
         case .poetry: "Poetry"
         case .mystery: "Mystery"
         case .scienceFiction: "Science Fiction"
+        case .comedy: "Comedy"
+        case .drama: "Drama"
+        case .western: "Westerns"
+        case .horror: "Horror & Suspense"
         }
     }
 }

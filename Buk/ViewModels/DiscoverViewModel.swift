@@ -21,7 +21,7 @@ final class DiscoverViewModel: ObservableObject {
         let books: [CatalogBook]
     }
 
-    init(providers: [CatalogProvider] = [LibrivoxProvider(), InternetArchiveProvider()]) {
+    init(providers: [CatalogProvider] = [LibrivoxProvider(), OldTimeRadioProvider()]) {
         self.providers = providers
         self.selectedProviderID = providers.first?.id ?? ""
     }
@@ -51,8 +51,7 @@ final class DiscoverViewModel: ObservableObject {
             browseSections = []
             return
         }
-        let categories: [CatalogCategory] = [.featured, .fiction, .nonFiction, .childrens,
-                                             .poetry, .mystery, .scienceFiction]
+        let categories = provider.browseCategories
         var sections: [BrowseSection] = []
         await withTaskGroup(of: (CatalogCategory, [CatalogBook]).self) { group in
             for category in categories {
@@ -67,7 +66,7 @@ final class DiscoverViewModel: ObservableObject {
                                               books: books))
             }
         }
-        // Preserve the natural category ordering instead of completion order.
+        // Preserve the provider's declared category order instead of completion order.
         let order = categories.map(\.id)
         sections.sort { lhs, rhs in
             (order.firstIndex(of: lhs.category.id) ?? .max) < (order.firstIndex(of: rhs.category.id) ?? .max)
@@ -85,7 +84,12 @@ final class DiscoverViewModel: ObservableObject {
             let temp = try await DownloadManager.shared.download(url) { fraction in
                 library.setDownloadProgress(fraction, for: book.id)
             }
-            let source: Audiobook.Source = (provider.id == "librivox") ? .librivox : .internetArchive
+            let source: Audiobook.Source
+            switch provider.id {
+            case "librivox":     source = .librivox
+            case "oldTimeRadio": source = .internetArchive
+            default:             source = .internetArchive
+            }
             await library.importDownloaded(localURL: temp, catalogBook: book, source: source)
         } catch {
             self.error = error.localizedDescription

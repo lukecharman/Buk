@@ -11,6 +11,7 @@ struct ContentView: View {
 
                 DiscoverView(library: library)
                     .tabItem { Label("Discover", systemImage: "sparkles") }
+                    .badge(library.activeDownloads.isEmpty ? nil : Text("↓"))
 
                 SettingsView()
                     .tabItem { Label("Settings", systemImage: "gearshape.fill") }

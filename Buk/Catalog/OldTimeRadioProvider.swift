@@ -1,12 +1,13 @@
 import Foundation
 
-/// Internet Archive provider — direct catalog search using `archive.org/advancedsearch.php`.
-/// Useful for finding audiobooks beyond LibriVox (e.g. Old Time Radio, public-domain
-/// dramatisations). Filters to items with at least one m4b file.
-nonisolated struct InternetArchiveProvider: CatalogProvider {
-    let id = "internetArchive"
-    let displayName = "Internet Archive"
-    let attribution = "Public-domain audio · archive.org"
+/// Old-Time Radio provider — searches the Internet Archive's `oldtimeradio`
+/// collection (Gunsmoke, Dragnet, Suspense, X Minus One, etc.). Distinct from
+/// LibriVox: 0 overlap with the `librivoxaudio` collection, so this is purely
+/// additive content rather than duplicate audiobooks.
+nonisolated struct OldTimeRadioProvider: CatalogProvider {
+    let id = "oldTimeRadio"
+    let displayName = "Old-Time Radio"
+    let attribution = "Old-time radio · archive.org"
     let supportsCategories = true
 
     private let session: URLSession
@@ -15,25 +16,44 @@ nonisolated struct InternetArchiveProvider: CatalogProvider {
         self.session = session
     }
 
+    /// Scope every query to the curated `oldtimeradio` collection on archive.org.
+    private static let baseFilter = "collection:(oldtimeradio)"
+
+    var browseCategories: [CatalogCategory] {
+        [.featured, .popular, .mystery, .drama, .comedy, .scienceFiction, .horror, .western]
+    }
+
     func search(query: String, limit: Int) async throws -> [CatalogBook] {
-        let q = "(\(query)) AND mediatype:(audio) AND format:(\"m4b\")"
+        let q = "(\(query)) AND \(Self.baseFilter)"
         return try await fetch(query: q, sort: "downloads desc", limit: limit)
     }
 
     func books(in category: CatalogCategory, limit: Int) async throws -> [CatalogBook] {
-        let baseFilter = "mediatype:(audio) AND format:(\"m4b\")"
         let extra: String?
+        let sort: String
         switch category {
-        case .featured, .popular: extra = nil
-        case .fiction:            extra = "subject:(fiction)"
-        case .nonFiction:         extra = "subject:(\"non-fiction\")"
-        case .childrens:          extra = "subject:(children)"
-        case .poetry:             extra = "subject:(poetry)"
-        case .mystery:            extra = "subject:(mystery)"
-        case .scienceFiction:     extra = "subject:(\"science fiction\")"
+        case .featured:
+            // Rotate by recent popularity so Featured doesn't freeze on the same
+            // all-time top shows every launch.
+            extra = nil
+            sort = "week desc"
+        case .popular:
+            extra = nil
+            sort = "downloads desc"
+        case .mystery:        extra = "subject:(mystery)";                                              sort = "downloads desc"
+        case .drama:          extra = "subject:(drama)";                                                sort = "downloads desc"
+        case .comedy:         extra = "subject:(comedy)";                                               sort = "downloads desc"
+        case .scienceFiction: extra = "(subject:(\"science fiction\") OR subject:(\"sci-fi\"))";        sort = "downloads desc"
+        case .horror:         extra = "(subject:(horror) OR subject:(suspense))";                       sort = "downloads desc"
+        case .western:        extra = "(subject:(western) OR subject:(westerns))";                      sort = "downloads desc"
+        // Categories that don't really apply to OTR — return an empty filter so the
+        // call is harmless if anything ever asks for them. `loadBrowseSections`
+        // hides empty rows anyway.
+        case .fiction, .nonFiction, .childrens, .poetry:
+            return []
         }
-        let q = extra.map { "\(baseFilter) AND \($0)" } ?? baseFilter
-        return try await fetch(query: q, sort: "downloads desc", limit: limit)
+        let q = extra.map { "\(Self.baseFilter) AND \($0)" } ?? Self.baseFilter
+        return try await fetch(query: q, sort: sort, limit: limit)
     }
 
     func resolveDownloadURL(for book: CatalogBook) async throws -> URL {
@@ -42,6 +62,7 @@ nonisolated struct InternetArchiveProvider: CatalogProvider {
         let metadataURL = URL(string: "https://archive.org/metadata/\(identifier)")!
         let (data, _) = try await session.data(from: metadataURL)
         let metadata = try JSONDecoder().decode(ArchiveMetadata.self, from: data)
+        // OTR items are almost always MP3; m4b is rare here but still preferred when present.
         let preferred = metadata.files.first { $0.name.lowercased().hasSuffix("_64kb.m4b") }
             ?? metadata.files.first { $0.name.lowercased().hasSuffix(".m4b") }
             ?? metadata.files.first { $0.name.lowercased().hasSuffix(".mp3") }

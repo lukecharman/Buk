@@ -213,7 +213,7 @@ struct BookDetailView: View {
         switch book.source {
         case .importedFile: "Files"
         case .librivox: "LibriVox"
-        case .internetArchive: "Archive"
+        case .internetArchive: "Old-Time Radio"
         case .bundled: "Bundled"
         }
     }
