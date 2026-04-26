@@ -33,19 +33,21 @@ struct BookDetailView: View {
     /// what was making the drag jank.
     @State private var matchActive = true
 
-    /// Live horizontal translation while the user is dragging right to dismiss.
-    @State private var dragX: CGFloat = 0
-    /// Direction lock for the active touch: once we know which axis the user
-    /// is on, we commit to it so vertical scrolling and horizontal dismiss
-    /// don't fight each other.
-    @State private var dragAxis: DragAxis?
-
-    private enum DragAxis { case horizontal, vertical }
+    /// Live downward over-scroll, in points. Driven by the scroll view's
+    /// bounce when the user pulls past the top of the content.
+    @State private var pullOffset: CGFloat = 0
+    /// Latched so we only fire `closeAnimated()` once when the gesture ends
+    /// past the threshold.
+    @State private var hasDismissed = false
 
     /// Distance the title block sits "behind" the tape before it slides down.
     private let titleSlideDistance: CGFloat = 70
-    /// How far the user must drag right to commit to a dismiss.
-    private let dismissThreshold: CGFloat = 120
+    /// How far the user must pull down to commit to a dismiss.
+    private let dismissThreshold: CGFloat = 110
+
+    private var pullProgress: CGFloat {
+        min(1, max(0, pullOffset / dismissThreshold))
+    }
 
     init(book: Audiobook,
          library: LibraryViewModel,
@@ -65,28 +67,48 @@ struct BookDetailView: View {
                 .ignoresSafeArea()
                 .opacity(backgroundVisible ? 1 : 0)
 
-            VStack(spacing: 20) {
-                cassette
-                    .padding(.horizontal)
-                    .padding(.top, 56)
-                    // Render on top so the title block can slide out from
-                    // behind it on enter / tuck back behind it on dismiss.
-                    .zIndex(1)
+            ScrollView {
+                VStack(spacing: 20) {
+                    cassette
+                        .padding(.horizontal)
+                        .padding(.top, 56)
+                        // Render on top so the title block can slide out from
+                        // behind it on enter / tuck back behind it on dismiss.
+                        .zIndex(1)
 
-                titleBlock
-                    .offset(y: titleVisible ? 0 : -titleSlideDistance)
-                    .opacity(titleVisible ? 1 : 0)
-                    .blur(radius: titleVisible ? 0 : 18)
-                    .zIndex(0)
+                    titleBlock
+                        .offset(y: titleVisible ? 0 : -titleSlideDistance)
+                        .opacity(titleVisible ? 1 : 0)
+                        .blur(radius: titleVisible ? 0 : 18)
+                        .zIndex(0)
 
-                detailsBlock
-                    .opacity(detailsVisible ? 1 : 0)
-                    .offset(y: detailsVisible ? 0 : 60)
-                    .blur(radius: detailsVisible ? 0 : 12)
+                    detailsBlock
+                        .opacity(detailsVisible ? 1 : 0)
+                        .offset(y: detailsVisible ? 0 : 60)
+                        .blur(radius: detailsVisible ? 0 : 12)
+                }
+                .padding(.bottom, 32)
             }
-            .offset(x: max(0, dragX))
-            .opacity(1 - min(0.4, max(0, dragX) / 600))
-            .simultaneousGesture(dismissDrag)
+            .scrollBounceBehavior(.always)
+            .safeAreaBar(edge: .top) { Color.clear.frame(height: 1) }
+            .scrollEdgeEffectStyle(.soft, for: .top)
+            .onScrollGeometryChange(for: CGFloat.self) { geo in
+                // Positive only when the user has pulled the top of the
+                // content below its resting position (an over-scroll bounce).
+                max(0, -(geo.contentOffset.y + geo.contentInsets.top))
+            } action: { _, new in
+                pullOffset = new
+            }
+            .onScrollPhaseChange { _, phase in
+                // Drag has ended (or any momentum has settled). Commit the
+                // dismiss if the user pulled past the threshold; otherwise
+                // the bounce snaps back on its own.
+                if phase == .idle, pullOffset >= dismissThreshold, !hasDismissed {
+                    hasDismissed = true
+                    closeAnimated()
+                }
+            }
+            .opacity(1 - 0.3 * pullProgress)
             .task {
                 // Fade the opaque background in alongside the matched-geometry
                 // morph so the recede/blur on the library underneath is
@@ -115,7 +137,34 @@ struct BookDetailView: View {
                 guard newValue != nil else { return }
                 closeAnimated()
             }
+
+            // Pull-to-dismiss indicator. Sits at the very top of the screen,
+            // above the cassette, becoming visible only as the user pulls the
+            // content down past the top.
+            dismissIndicator
+                .padding(.top, 8)
         }
+    }
+
+    /// Growing × shown above the cassette while the user pulls the content
+    /// down. Fully opaque + red at `dismissThreshold`, signalling that letting
+    /// go will dismiss.
+    private var dismissIndicator: some View {
+        let p = pullProgress
+        return ZStack {
+            Circle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 52, height: 52)
+                .opacity(0.9 * p)
+            Image(systemName: "xmark")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(p >= 1 ? CassettePalette.recordRed : .primary)
+                .opacity(p)
+        }
+        .scaleEffect(0.5 + 0.6 * p)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Pieces
@@ -162,31 +211,26 @@ struct BookDetailView: View {
     /// The metrics row, Play/Resume button, and chapter list. Slides up from
     /// the bottom after the title has appeared, and reverses on close.
     private var detailsBlock: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                metricsRow
+        VStack(spacing: 20) {
+            metricsRow
 
-                Button {
-                    library.presentingPlayerBook = book
-                } label: {
-                    Label(progressFraction > 0.01 ? "Resume" : "Play",
-                          systemImage: "play.fill")
-                        .font(.headline)
-                        .padding(.horizontal, 28).padding(.vertical, 12)
-                }
-                .buttonStyle(.plain)
-                .cassetteGlass(cornerRadius: 22, tint: CassettePalette.recordRed.opacity(0.85))
-
-                ChapterListView(book: book,
-                                progress: library.progress(for: book),
-                                onSelect: nil)
-                    .padding(.horizontal)
+            Button {
+                library.presentingPlayerBook = book
+            } label: {
+                Label(progressFraction > 0.01 ? "Resume" : "Play",
+                      systemImage: "play.fill")
+                    .font(.headline)
+                    .padding(.horizontal, 28).padding(.vertical, 12)
             }
-            .padding(.top, 4)
-            .padding(.bottom, 32)
+            .buttonStyle(.plain)
+            .cassetteGlass(cornerRadius: 22, tint: CassettePalette.recordRed.opacity(0.85))
+
+            ChapterListView(book: book,
+                            progress: library.progress(for: book),
+                            onSelect: nil)
+                .padding(.horizontal)
         }
-        .scrollBounceBehavior(.basedOnSize)
-        .scrollDisabled(dragAxis == .horizontal)
+        .padding(.top, 4)
     }
 
     @ViewBuilder
@@ -239,39 +283,6 @@ struct BookDetailView: View {
             backgroundVisible = false
         }
         onClose()
-    }
-
-    /// Horizontal swipe-from-anywhere to dismiss back to the library. Tracks
-    /// the finger live and commits if the user passes the threshold or flicks.
-    private var dismissDrag: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onChanged { value in
-                if dragAxis == nil {
-                    let dx = abs(value.translation.width)
-                    let dy = abs(value.translation.height)
-                    guard max(dx, dy) > 6 else { return }
-                    // Only treat as a dismiss swipe if it starts from the left
-                    // edge of the screen, like the system back gesture.
-                    let fromEdge = value.startLocation.x <= 24
-                    dragAxis = (fromEdge && dx > dy) ? .horizontal : .vertical
-                }
-                guard dragAxis == .horizontal, value.translation.width > 0 else { return }
-                dragX = value.translation.width
-            }
-            .onEnded { value in
-                let wasHorizontal = dragAxis == .horizontal
-                dragAxis = nil
-                guard wasHorizontal else { return }
-                let committed = value.translation.width > dismissThreshold
-                    || value.predictedEndTranslation.width > 240
-                if committed {
-                    closeAnimated()
-                } else {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                        dragX = 0
-                    }
-                }
-            }
     }
 
     private var cassetteBackgroundFill: some View {
