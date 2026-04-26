@@ -81,6 +81,22 @@ struct DiscoverView: View {
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
                 }
+                if viewModel.selectedProviderID == "librivox" {
+                    NavigationLink {
+                        LibrivoxGenreListView(library: library, viewModel: viewModel)
+                    } label: {
+                        HStack {
+                            Label("Browse by Genre", systemImage: "square.grid.2x2")
+                                .font(CassetteFont.label(16))
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal)
+                    }
+                    .buttonStyle(.plain)
+                }
                 ForEach(viewModel.browseSections) { section in
                     VStack(alignment: .leading, spacing: 10) {
                         Text(section.category.title)

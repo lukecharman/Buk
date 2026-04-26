@@ -77,12 +77,35 @@ nonisolated struct LibrivoxProvider: CatalogProvider {
         return URL(string: "https://archive.org/download/\(identifier)/\(file.name)")!
     }
 
+    /// Paginated fetch by exact LibriVox genre name. Used by the "Browse by Genre"
+    /// detail view, which lazy-loads pages as the user scrolls.
+    func books(genre: String, limit: Int, offset: Int) async throws -> [CatalogBook] {
+        var components = URLComponents(string: "https://librivox.org/api/feed/audiobooks")!
+        components.queryItems = [
+            URLQueryItem(name: "format", value: "json"),
+            URLQueryItem(name: "genre", value: genre),
+            URLQueryItem(name: "limit", value: String(limit)),
+            URLQueryItem(name: "offset", value: String(offset)),
+            URLQueryItem(name: "extended", value: "1")
+        ]
+        return try await fetchBooks(at: components.url!)
+    }
+
     // MARK: - Networking
 
     private func fetchBooks(at url: URL) async throws -> [CatalogBook] {
         let (data, response) = try await session.data(from: url)
-        if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw CatalogError.badStatus(http.statusCode)
+        if let http = response as? HTTPURLResponse {
+            // LibriVox returns 404 (with {"error": ...}) when an offset runs past
+            // the end of a genre, and 500 for unknown genres. Treat both as an
+            // empty page so paginated views stop cleanly instead of surfacing an
+            // alert. Any other non-2xx is a genuine error.
+            if http.statusCode == 404 || http.statusCode == 500 {
+                return []
+            }
+            if !(200..<300).contains(http.statusCode) {
+                throw CatalogError.badStatus(http.statusCode)
+            }
         }
         let decoded = try JSONDecoder().decode(LibrivoxResponse.self, from: data)
         return decoded.books.compactMap(map(_:))
