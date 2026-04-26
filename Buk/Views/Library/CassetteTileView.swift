@@ -10,14 +10,13 @@ struct CassetteTileView: View {
     /// don't have two views with the same matched id alive at once.
     var isPresentingDetail: Bool = false
 
-    /// Width of the cassette graphic in row layout — about 40% of the previous
-    /// two-column tile width.
-    private let tapeWidth: CGFloat = 140
+    /// Height of the book on the row. Width follows the book's portrait aspect.
+    private let bookHeight: CGFloat = 92
 
     var body: some View {
         HStack(spacing: 14) {
             tapeView
-                .frame(width: tapeWidth, height: tapeWidth * 0.62)
+                .frame(width: bookHeight * 0.72, height: bookHeight)
 
             VStack(alignment: .leading, spacing: 3) {
                 titleText
@@ -44,18 +43,18 @@ struct CassetteTileView: View {
 
     @ViewBuilder
     private var tapeView: some View {
-        let deck = CassetteDeckView(
-            title: book.title,
-            subtitle: book.author,
-            progress: progress,
-            isPlaying: false,
-            cover: book.artworkImage(in: LibraryPaths.artworkFolder),
-            showsLabelText: false
+        let book = BookGraphicView(
+            title: self.book.title,
+            subtitle: nil,
+            cover: self.book.artworkImage(in: LibraryPaths.artworkFolder),
+            id: self.book.id,
+            openness: 0,
+            showsLabelText: true
         )
         if let ns = transitionNamespace, !isPresentingDetail {
-            deck.matchedGeometryEffect(id: MatchedID.tape(book.id), in: ns)
+            book.matchedGeometryEffect(id: MatchedID.tape(self.book.id), in: ns)
         } else {
-            deck
+            book
         }
     }
 

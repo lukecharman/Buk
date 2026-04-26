@@ -33,6 +33,11 @@ struct BookDetailView: View {
     /// what was making the drag jank.
     @State private var matchActive = true
 
+    /// Drives the book cover hinging open after the matched-geometry morph
+    /// settles. Reset to false during the close animation so the cover snaps
+    /// shut before the book travels back to its row in the library.
+    @State private var bookOpen = false
+
     /// Live downward over-scroll, in points. Driven by the scroll view's
     /// bounce when the user pulls past the top of the content.
     @State private var pullOffset: CGFloat = 0
@@ -70,6 +75,7 @@ struct BookDetailView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     cassette
+                        .frame(height: 240)
                         .padding(.horizontal)
                         .padding(.top, 56)
                         // Render on top so the title block can slide out from
@@ -127,6 +133,10 @@ struct BookDetailView: View {
                 // fight the matched-geometry frame tracker.
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 matchActive = false
+                // Open the book's front cover, hinging round the spine.
+                withAnimation(.spring(response: 0.7, dampingFraction: 0.78)) {
+                    bookOpen = true
+                }
                 // Bring the rest of the detail content up after the title has
                 // landed.
                 withAnimation(.spring(response: 0.55, dampingFraction: 0.85)) {
@@ -171,18 +181,18 @@ struct BookDetailView: View {
 
     @ViewBuilder
     private var cassette: some View {
-        let deck = CassetteDeckView(
-            title: book.title,
-            subtitle: book.author,
-            progress: progressFraction,
-            isPlaying: false,
-            cover: book.artworkImage(in: LibraryPaths.artworkFolder),
-            showsLabelText: false
+        let book = BookGraphicView(
+            title: self.book.title,
+            subtitle: self.book.author,
+            cover: self.book.artworkImage(in: LibraryPaths.artworkFolder),
+            id: self.book.id,
+            openness: bookOpen ? 1 : 0,
+            showsLabelText: true
         )
         if let ns = transitionNamespace, matchActive {
-            deck.matchedGeometryEffect(id: MatchedID.tape(book.id), in: ns)
+            book.matchedGeometryEffect(id: MatchedID.tape(self.book.id), in: ns)
         } else {
-            deck
+            book
         }
     }
 
@@ -281,6 +291,7 @@ struct BookDetailView: View {
             titleVisible = false
             detailsVisible = false
             backgroundVisible = false
+            bookOpen = false
         }
         onClose()
     }
