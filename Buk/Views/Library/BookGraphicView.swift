@@ -39,7 +39,7 @@ struct BookGraphicView: View {
                             // V-shape of a real book in the hand rather than
                             // a flat page next to a hinged cover.
                             .rotation3DEffect(
-                                .degrees(25 * openness),
+                                .degrees(-10 * openness),
                                 axis: (x: 0, y: 1, z: 0),
                                 anchor: .leading,
                                 anchorZ: 0,
@@ -48,7 +48,7 @@ struct BookGraphicView: View {
                         spine(w: w, h: h, color: coverColor)
                         frontCover(w: w, h: h, color: coverColor)
                             .rotation3DEffect(
-                                .degrees(-155 * openness),
+                                .degrees(-150 * openness),
                                 axis: (x: 0, y: 1, z: 0),
                                 anchor: .leading,
                                 anchorZ: 0,
