@@ -118,6 +118,7 @@ nonisolated struct OldTimeRadioProvider: CatalogProvider {
             durationSeconds: duration,
             coverURL: cover,
             providerID: id,
+            genres: [],
             downloadHandle: .init(identifier: doc.identifier, directURL: nil, providerID: id)
         )
     }

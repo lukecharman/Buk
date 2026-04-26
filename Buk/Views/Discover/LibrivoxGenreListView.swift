@@ -17,7 +17,12 @@ struct LibrivoxGenreListView: View {
                                                    library: library,
                                                    viewModel: viewModel)
                         } label: {
-                            Text(genre)
+                            HStack(spacing: 12) {
+                                Text(LibrivoxGenres.emoji(for: genre))
+                                    .font(.title3)
+                                    .frame(width: 28)
+                                Text(genre)
+                            }
                         }
                         .listRowBackground(Color.clear)
                     }

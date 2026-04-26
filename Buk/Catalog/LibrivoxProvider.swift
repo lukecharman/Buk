@@ -121,6 +121,7 @@ nonisolated struct LibrivoxProvider: CatalogProvider {
             return joined.isEmpty ? nil : joined
         }.joined(separator: ", ")
         let duration = book.totaltimesecs.flatMap { TimeInterval(exactly: $0) }
+        let genres = (book.genres ?? []).compactMap { $0.name }
         return CatalogBook(
             id: "\(id):\(book.id)",
             title: book.title,
@@ -130,6 +131,7 @@ nonisolated struct LibrivoxProvider: CatalogProvider {
             durationSeconds: duration,
             coverURL: coverURL,
             providerID: id,
+            genres: genres,
             downloadHandle: .init(identifier: identifier, directURL: nil, providerID: id)
         )
     }
@@ -151,10 +153,15 @@ private struct LibrivoxAPIBook: Decodable {
     let url_zip: String?
     let totaltimesecs: Int?
     let authors: [Author]?
+    let genres: [Genre]?
 
     struct Author: Decodable {
         let first_name: String?
         let last_name: String?
+    }
+
+    struct Genre: Decodable {
+        let name: String?
     }
 }
 

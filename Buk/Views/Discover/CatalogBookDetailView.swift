@@ -37,6 +37,10 @@ struct CatalogBookDetailView: View {
 
                 downloadButton
 
+                if !book.genres.isEmpty {
+                    genreChips
+                }
+
                 if let provider = viewModel.providers.first(where: { $0.id == book.providerID }) {
                     Text(provider.attribution)
                         .font(.caption)
@@ -78,6 +82,25 @@ struct CatalogBookDetailView: View {
             }
             .buttonStyle(.plain)
             .cassetteGlass(cornerRadius: 22, tint: CassettePalette.recordRed.opacity(0.85))
+        }
+    }
+
+    @ViewBuilder
+    private var genreChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(book.genres, id: \.self) { genre in
+                    HStack(spacing: 4) {
+                        Text(LibrivoxGenres.emoji(for: genre))
+                        Text(genre)
+                            .font(.caption)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.ultraThinMaterial, in: Capsule())
+                }
+            }
+            .padding(.horizontal, 24)
         }
     }
 

@@ -11,6 +11,9 @@ struct CatalogBook: Identifiable, Hashable {
     let durationSeconds: TimeInterval?
     let coverURL: URL?
     let providerID: String
+    /// Provider-supplied genre/tag names (e.g. LibriVox's `genres[].name`).
+    /// Free-form strings — the same names you'd pass to a provider's genre query.
+    let genres: [String]
     /// Provider-specific payload used to start a download.
     let downloadHandle: DownloadHandle
 
