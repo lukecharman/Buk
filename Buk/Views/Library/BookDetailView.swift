@@ -99,11 +99,11 @@ struct BookDetailView: View {
             } action: { _, new in
                 pullOffset = new
             }
-            .onScrollPhaseChange { _, phase in
-                // Drag has ended (or any momentum has settled). Commit the
-                // dismiss if the user pulled past the threshold; otherwise
-                // the bounce snaps back on its own.
-                if phase == .idle, pullOffset >= dismissThreshold, !hasDismissed {
+            .onScrollPhaseChange { oldPhase, newPhase in
+                // Drag just ended (finger lifted). Capture pullOffset *now*,
+                // before the bounce-back animation drives it back to 0.
+                if oldPhase == .interacting, newPhase != .interacting,
+                   pullOffset >= dismissThreshold, !hasDismissed {
                     hasDismissed = true
                     closeAnimated()
                 }
