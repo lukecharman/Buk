@@ -48,4 +48,17 @@ enum CatalogCategory: String, CaseIterable, Identifiable, Hashable {
         case .scienceFiction: "Science Fiction"
         }
     }
+
+    var emoji: String {
+        switch self {
+        case .featured: "⭐"
+        case .popular: "🔥"
+        case .fiction: "📖"
+        case .nonFiction: "🎓"
+        case .childrens: "🧸"
+        case .poetry: "✒️"
+        case .mystery: "🔍"
+        case .scienceFiction: "🚀"
+        }
+    }
 }

@@ -83,7 +83,7 @@ struct DiscoverView: View {
                 }
                 ForEach(viewModel.browseSections) { section in
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(section.category.title)
+                        Text("\(section.category.emoji) \(section.category.title)")
                             .font(CassetteFont.label(20))
                             .padding(.horizontal)
                         ScrollView(.horizontal, showsIndicators: false) {
