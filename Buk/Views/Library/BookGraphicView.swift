@@ -49,6 +49,11 @@ struct BookGraphicView: View {
                                     y: 6 * (1 - openness))
                     }
                     .frame(width: w, height: h)
+                    // As the book opens, slide the spine from the leading edge
+                    // of our frame to the centre, so the open book reads as
+                    // two pages straddling the centreline rather than a single
+                    // right-hand page sitting where the closed book was.
+                    .offset(x: w * 0.5 * openness)
                 }
             }
             .accessibilityElement(children: .combine)
