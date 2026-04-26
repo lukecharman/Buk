@@ -34,10 +34,21 @@ struct BookGraphicView: View {
                     let h = geo.size.height
                     ZStack(alignment: .leading) {
                         insideFace(w: w, h: h, accent: coverColor)
+                            // Tilt the right-hand page slightly back, anchored
+                            // at the spine, so the open book has the gentle
+                            // V-shape of a real book in the hand rather than
+                            // a flat page next to a hinged cover.
+                            .rotation3DEffect(
+                                .degrees(25 * openness),
+                                axis: (x: 0, y: 1, z: 0),
+                                anchor: .leading,
+                                anchorZ: 0,
+                                perspective: 0.7
+                            )
                         spine(w: w, h: h, color: coverColor)
                         frontCover(w: w, h: h, color: coverColor)
                             .rotation3DEffect(
-                                .degrees(-150 * openness),
+                                .degrees(-155 * openness),
                                 axis: (x: 0, y: 1, z: 0),
                                 anchor: .leading,
                                 anchorZ: 0,
