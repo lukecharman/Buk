@@ -7,8 +7,6 @@ import UniformTypeIdentifiers
 struct LibraryView: View {
     @ObservedObject var library: LibraryViewModel
     @State private var showImporter = false
-    @State private var showDiscover = false
-    @State private var showSettings = false
     @State private var selectedBook: Audiobook?
     /// Bumped by the toolbar's close action to ask the presented detail view
     /// to run its dismiss animation. The detail observes changes and calls its
@@ -26,39 +24,6 @@ struct LibraryView: View {
                     .cassetteBackground()
                     .navigationTitle("Library")
                     .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .topBarLeading) {
-                            Button {
-                                showDiscover = true
-                            } label: {
-                                Image(systemName: "sparkles")
-                                    .overlay(alignment: .topTrailing) {
-                                        if !library.activeDownloads.isEmpty {
-                                            Circle()
-                                                .fill(.tint)
-                                                .frame(width: 8, height: 8)
-                                                .offset(x: 6, y: -4)
-                                        }
-                                    }
-                            }
-                            .buttonStyle(.glass)
-                            .accessibilityLabel("Discover")
-
-                            Button {
-                                showSettings = true
-                            } label: {
-                                Image(systemName: "gearshape.fill")
-                            }
-                            .buttonStyle(.glass)
-                            .accessibilityLabel("Settings")
-                        }
-                    }
-                    .sheet(isPresented: $showDiscover) {
-                        DiscoverView(library: library)
-                    }
-                    .sheet(isPresented: $showSettings) {
-                        SettingsView()
-                    }
                     .fileImporter(
                         isPresented: $showImporter,
                         allowedContentTypes: importContentTypes,
