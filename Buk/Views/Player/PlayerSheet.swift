@@ -25,17 +25,33 @@ struct PlayerSheet: View {
     static let barDetent: PresentationDetent = .height(72)
     static let midDetent: PresentationDetent = .fraction(0.55)
 
+    /// Heights below this are treated as "fully bar"; above the upper bound,
+    /// the bar layout has fully faded out. The crossfade window is small so
+    /// the bar never lingers half-transparent while the user is scrubbing
+    /// through the mid layout.
+    private static let barFadeRange: ClosedRange<CGFloat> = 96...160
+
     var body: some View {
-        Group {
-            if detent == Self.barDetent {
+        GeometryReader { proxy in
+            let h = proxy.size.height
+            let barOpacity = Self.opacityFalling(in: Self.barFadeRange, height: h)
+            // Mid is the "rest of the way up" — visible from the moment the
+            // bar starts fading out, all the way to the top.
+            let midOpacity = 1 - barOpacity
+            // Full extras (speed dial / sleep / chapters / Stop) bloom in once
+            // the sheet pushes past the mid layout's natural height.
+            let fullExtraOpacity = Self.opacityRising(in: 420...560, height: h)
+
+            ZStack(alignment: .top) {
                 barBody
-            } else if detent == .large {
-                fullBody
-            } else {
-                midBody
+                    .opacity(barOpacity)
+                    .allowsHitTesting(barOpacity > 0.5)
+                expandedBody(fullExtraOpacity: fullExtraOpacity)
+                    .opacity(midOpacity)
+                    .allowsHitTesting(midOpacity > 0.5)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.clear.cassetteBackground())
         .sheet(isPresented: $showSleepSheet) {
             sleepTimerSheet.presentationDetents([.medium])
@@ -87,44 +103,66 @@ struct PlayerSheet: View {
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .onTapGesture {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                detent = Self.midDetent
-            }
+            detent = Self.midDetent
         }
     }
 
-    /// Default detent. Big enough for the artwork, scrubber and full transport
-    /// row without scrolling.
-    private var midBody: some View {
-        VStack(spacing: 18) {
-            artwork(size: 180)
-            titleAuthor
-            ScrubberView(viewModel: viewModel)
-                .padding(.horizontal, -16)
-            TransportControlsView(viewModel: viewModel)
+    /// Single expanded layout used for both mid and full detents. The artwork
+    /// grows with available height and the speed dial / supplementary row /
+    /// Stop button cross-fade in once the sheet pushes past mid.
+    private func expandedBody(fullExtraOpacity: Double) -> some View {
+        GeometryReader { proxy in
+            let h = proxy.size.height
+            // Artwork grows from ~150 at mid to ~280 at full, capped to a
+            // sensible portion of the available height.
+            let artworkSize = min(280, max(150, h * 0.42))
+
+            ScrollView {
+                VStack(spacing: 22) {
+                    artwork(size: artworkSize)
+                    titleAuthor
+                    ScrubberView(viewModel: viewModel)
+                        .padding(.horizontal, -16)
+                    TransportControlsView(viewModel: viewModel)
+
+                    // Cross-faded extras — kept in the layout (with a height
+                    // multiplier on the container) so the bloom and the
+                    // sheet's own resizing stay in sync.
+                    VStack(spacing: 22) {
+                        SpeedDialView(viewModel: viewModel)
+                        supplementaryRow
+                        stopButton
+                    }
+                    .opacity(fullExtraOpacity)
+                    .frame(height: nil)
+                    .scaleEffect(0.95 + 0.05 * fullExtraOpacity, anchor: .top)
+                    .allowsHitTesting(fullExtraOpacity > 0.5)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 18)
+                .padding(.bottom, 36)
+                .frame(maxWidth: .infinity)
+            }
+            .scrollDisabled(h < 560)
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 18)
     }
 
-    /// Full-screen detent. Adds speed dial, sleep / chapter buttons, and the
-    /// Stop button.
-    private var fullBody: some View {
-        ScrollView {
-            VStack(spacing: 22) {
-                artwork(size: 280)
-                titleAuthor
-                ScrubberView(viewModel: viewModel)
-                    .padding(.horizontal, -16)
-                TransportControlsView(viewModel: viewModel)
-                SpeedDialView(viewModel: viewModel)
-                supplementaryRow
-                stopButton
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .padding(.bottom, 36)
-        }
+    // MARK: - Easing helpers
+
+    /// 1 → 0 across `range` (low end fully visible, high end fully faded).
+    private static func opacityFalling(in range: ClosedRange<CGFloat>, height: CGFloat) -> Double {
+        let t = (height - range.lowerBound) / (range.upperBound - range.lowerBound)
+        return Double(1 - clamp(t, 0, 1))
+    }
+
+    /// 0 → 1 across `range`.
+    private static func opacityRising(in range: ClosedRange<CGFloat>, height: CGFloat) -> Double {
+        let t = (height - range.lowerBound) / (range.upperBound - range.lowerBound)
+        return Double(clamp(t, 0, 1))
+    }
+
+    private static func clamp(_ x: CGFloat, _ lo: CGFloat, _ hi: CGFloat) -> CGFloat {
+        min(hi, max(lo, x))
     }
 
     // MARK: - Pieces
