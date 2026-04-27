@@ -15,20 +15,16 @@ struct ContentView: View {
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
         }
-        // Mini-player bar lives above the tab bar via safeAreaInset, so the
-        // tab bar stays visible and tappable. PlayerHost owns the long-lived
-        // PlayerViewModel; the expanded sheet is presented from inside it.
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if let book = library.presentingPlayerBook {
-                PlayerHost(book: book, library: library) {
-                    library.presentingPlayerBook = nil
-                }
-                .id(book.id)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+        // The player is a single multi-detent sheet (bar / mid / full) that
+        // sits permanently on top of the tab bar while a book is current. The
+        // bar detent is sized for tab-bar coexistence and the sheet is fully
+        // undismissable — Stop (in the full detent) is the only escape hatch.
+        .sheet(item: $library.presentingPlayerBook) { book in
+            PlayerSheetContainer(book: book, library: library) {
+                library.presentingPlayerBook = nil
             }
+            .id(book.id)
         }
-        .animation(.spring(response: 0.45, dampingFraction: 0.85),
-                   value: library.presentingPlayerBook?.id)
     }
 }
 

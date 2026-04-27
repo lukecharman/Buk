@@ -1,14 +1,17 @@
 import SwiftUI
 
-/// Expanded player sheet — opened by tapping the always-on `PlayerMiniBar`.
+/// Multi-detent player sheet. Always presented while a book is current and
+/// fully undismissable — the only way to clear playback is the Stop button
+/// inside the full detent.
 ///
-/// Two detents:
+/// Three detents:
+///   * `bar`   – horizontal mini-player bar (artwork, title/author, play/pause)
 ///   * `mid`   – artwork, title/author, scrubber, full transport row
-///   * `full`  – everything plus speed dial, sleep timer, chapters, and the
-///               Stop button (the only way to fully end playback)
+///   * `full`  – everything plus speed dial, sleep timer, chapters, and Stop
 ///
-/// While `viewModel.isPlaying` is true the sheet is interactively
-/// undismissable — users must pause first to swipe it back to the mini bar.
+/// The `bar` detent is sized to sit just above the system tab bar; the host
+/// uses `presentationBackgroundInteraction(.enabled(upThrough: barDetent))`
+/// so the tab bar stays tappable while the bar is showing.
 struct PlayerSheet: View {
     @ObservedObject var viewModel: PlayerViewModel
     @ObservedObject var library: LibraryViewModel
@@ -19,11 +22,14 @@ struct PlayerSheet: View {
     @State private var showSleepSheet = false
     @State private var showChaptersSheet = false
 
+    static let barDetent: PresentationDetent = .height(72)
     static let midDetent: PresentationDetent = .fraction(0.55)
 
     var body: some View {
         Group {
-            if detent == .large {
+            if detent == Self.barDetent {
+                barBody
+            } else if detent == .large {
                 fullBody
             } else {
                 midBody
@@ -45,6 +51,47 @@ struct PlayerSheet: View {
     }
 
     // MARK: - Layouts
+
+    /// Smallest detent. A horizontal mini-player strip sized to sit above the
+    /// system tab bar. Tapping anywhere outside the play/pause button expands
+    /// the sheet to `mid`.
+    private var barBody: some View {
+        HStack(spacing: 12) {
+            artwork(size: 44)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(viewModel.book.title)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                if let author = viewModel.book.author {
+                    Text(author)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            Button {
+                viewModel.togglePlay()
+            } label: {
+                Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 18, weight: .heavy))
+                    .frame(width: 40, height: 40)
+            }
+            .buttonStyle(.plain)
+            .cassetteGlassCircle(tint: CassettePalette.recordRed.opacity(0.85))
+            .accessibilityLabel(viewModel.isPlaying ? "Pause" : "Play")
+            // Stop tap-through to the row so play/pause doesn't expand the sheet.
+            .simultaneousGesture(TapGesture())
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                detent = Self.midDetent
+            }
+        }
+    }
 
     /// Default detent. Big enough for the artwork, scrubber and full transport
     /// row without scrolling.
