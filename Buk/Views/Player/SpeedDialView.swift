@@ -36,7 +36,14 @@ struct SpeedDialView: View {
                         .accessibilityLabel("Playback speed \(rateLabel(rate))")
                     }
                 }
+                // Breathing room so the chip drop-shadows aren't clipped by
+                // the ScrollView's content bounds.
+                .padding(.vertical, 6)
+                .padding(.horizontal, 2)
             }
+            // Cancel out the inner horizontal padding so chips still align
+            // with the section header above.
+            .padding(.horizontal, -2)
         }
         .padding(.horizontal)
     }
