@@ -1,41 +1,29 @@
 import SwiftUI
 
-/// Bottom-sheet player. Replaces the old skeuomorphic `WalkmanPlayerView`.
+/// Expanded player sheet — opened by tapping the always-on `PlayerMiniBar`.
 ///
-/// Lives for as long as `LibraryViewModel.presentingPlayerBook` is non-nil.
-/// Has three detents:
-///   * `mini`  – a single-line bar (artwork, title, play/pause)
+/// Two detents:
 ///   * `mid`   – artwork, title/author, scrubber, full transport row
-///   * `full`  – everything plus speed control, sleep timer, chapters
+///   * `full`  – everything plus speed dial, sleep timer, chapters, and the
+///               Stop button (the only way to fully end playback)
 ///
-/// Background interaction is allowed up to and including `mid`, so the user
-/// can browse the rest of the app while the sheet is parked. Swiping down
-/// past `mini` dismisses the sheet entirely (and tears down playback).
+/// While `viewModel.isPlaying` is true the sheet is interactively
+/// undismissable — users must pause first to swipe it back to the mini bar.
 struct PlayerSheet: View {
-    @StateObject private var viewModel: PlayerViewModel
+    @ObservedObject var viewModel: PlayerViewModel
     @ObservedObject var library: LibraryViewModel
     @StateObject private var settings = SettingsStore.shared
     @Binding var detent: PresentationDetent
+    let onStop: () -> Void
 
     @State private var showSleepSheet = false
     @State private var showChaptersSheet = false
 
-    static let miniDetent: PresentationDetent = .height(96)
     static let midDetent: PresentationDetent = .fraction(0.55)
-
-    init(book: Audiobook,
-         library: LibraryViewModel,
-         detent: Binding<PresentationDetent>) {
-        _viewModel = StateObject(wrappedValue: PlayerViewModel(book: book, library: library))
-        _library = ObservedObject(wrappedValue: library)
-        _detent = detent
-    }
 
     var body: some View {
         Group {
-            if detent == Self.miniDetent {
-                miniBody
-            } else if detent == .large {
+            if detent == .large {
                 fullBody
             } else {
                 midBody
@@ -43,7 +31,6 @@ struct PlayerSheet: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.clear.cassetteBackground())
-        .onDisappear { viewModel.tearDown() }
         .sheet(isPresented: $showSleepSheet) {
             sleepTimerSheet.presentationDetents([.medium])
         }
@@ -59,37 +46,8 @@ struct PlayerSheet: View {
 
     // MARK: - Layouts
 
-    /// Compact one-row bar, designed to clear the tab bar with room to breathe.
-    /// Tapping anywhere on it expands the sheet to `mid`.
-    private var miniBody: some View {
-        HStack(spacing: 12) {
-            artwork(size: 56)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.book.title)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
-                if let author = viewModel.book.author {
-                    Text(author)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            Spacer(minLength: 4)
-            playPauseButton(size: 44)
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                detent = Self.midDetent
-            }
-        }
-    }
-
-    /// The default detent. Big enough for the artwork, scrubber and full
-    /// transport row without scrolling.
+    /// Default detent. Big enough for the artwork, scrubber and full transport
+    /// row without scrolling.
     private var midBody: some View {
         VStack(spacing: 18) {
             artwork(size: 180)
@@ -102,7 +60,8 @@ struct PlayerSheet: View {
         .padding(.top, 18)
     }
 
-    /// Full-screen detent. Adds the speed dial and access to sleep / chapters.
+    /// Full-screen detent. Adds speed dial, sleep / chapter buttons, and the
+    /// Stop button.
     private var fullBody: some View {
         ScrollView {
             VStack(spacing: 22) {
@@ -113,6 +72,7 @@ struct PlayerSheet: View {
                 TransportControlsView(viewModel: viewModel)
                 SpeedDialView(viewModel: viewModel)
                 supplementaryRow
+                stopButton
             }
             .padding(.horizontal, 24)
             .padding(.top, 12)
@@ -122,8 +82,6 @@ struct PlayerSheet: View {
 
     // MARK: - Pieces
 
-    /// Square cover image when the book has artwork; otherwise a closed
-    /// `BookGraphicView` so the look stays consistent with the library.
     private func artwork(size: CGFloat) -> some View {
         Group {
             if let cover = viewModel.book.artworkImage(in: LibraryPaths.artworkFolder) {
@@ -166,19 +124,6 @@ struct PlayerSheet: View {
         }
     }
 
-    private func playPauseButton(size: CGFloat) -> some View {
-        Button {
-            viewModel.togglePlay()
-        } label: {
-            Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                .font(.system(size: size * 0.45, weight: .heavy))
-                .frame(width: size, height: size)
-        }
-        .buttonStyle(.plain)
-        .cassetteGlassCircle(tint: CassettePalette.recordRed.opacity(0.85))
-        .accessibilityLabel(viewModel.isPlaying ? "Pause" : "Play")
-    }
-
     private var supplementaryRow: some View {
         HStack(spacing: 12) {
             Button {
@@ -199,6 +144,22 @@ struct PlayerSheet: View {
             .buttonStyle(.plain)
             .cassetteGlass(cornerRadius: 14)
         }
+    }
+
+    /// The deliberate, only-on-full-detent escape hatch from playback. Pauses
+    /// then signals the host to drop the current player.
+    private var stopButton: some View {
+        Button(role: .destructive) {
+            viewModel.pause()
+            onStop()
+        } label: {
+            Label("Stop Playback", systemImage: "stop.fill")
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 18).padding(.vertical, 10)
+        }
+        .buttonStyle(.plain)
+        .cassetteGlass(cornerRadius: 14)
+        .padding(.top, 8)
     }
 
     private var sleepLabel: String {

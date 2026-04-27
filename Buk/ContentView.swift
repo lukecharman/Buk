@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var library: LibraryViewModel
-    @State private var playerDetent: PresentationDetent = PlayerSheet.midDetent
 
     var body: some View {
         TabView {
@@ -16,21 +15,20 @@ struct ContentView: View {
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
         }
-        .sheet(item: $library.presentingPlayerBook) { book in
-            PlayerSheet(book: book, library: library, detent: $playerDetent)
-                .id(book.id)
-                .presentationDetents(
-                    [PlayerSheet.miniDetent, PlayerSheet.midDetent, .large],
-                    selection: $playerDetent
-                )
-                .presentationBackgroundInteraction(.enabled(upThrough: PlayerSheet.midDetent))
-                .presentationDragIndicator(.visible)
-                .presentationContentInteraction(.scrolls)
-                .onAppear {
-                    // Reset to the default detent for each new book.
-                    playerDetent = PlayerSheet.midDetent
+        // Mini-player bar lives above the tab bar via safeAreaInset, so the
+        // tab bar stays visible and tappable. PlayerHost owns the long-lived
+        // PlayerViewModel; the expanded sheet is presented from inside it.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if let book = library.presentingPlayerBook {
+                PlayerHost(book: book, library: library) {
+                    library.presentingPlayerBook = nil
                 }
+                .id(book.id)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .animation(.spring(response: 0.45, dampingFraction: 0.85),
+                   value: library.presentingPlayerBook?.id)
     }
 }
 
