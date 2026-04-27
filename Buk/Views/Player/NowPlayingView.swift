@@ -1,34 +1,47 @@
 import SwiftUI
 
-/// Multi-detent player sheet. Presented when the user taps the dedicated
-/// "Now Playing" tab in the tab bar.
-///
-/// Two detents:
-///   * `mid`   – artwork, title/author, scrubber, full transport row
-///   * `full`  – everything plus speed dial, sleep timer, chapters, and the
-///               Stop button (the only way to fully end playback)
-struct PlayerSheet: View {
-    @ObservedObject var viewModel: PlayerViewModel
+/// Full-screen Now Playing view, shown as the content of the dedicated
+/// "Now Playing" tab while a book is current. Owns the long-lived
+/// `PlayerViewModel` so playback persists across tab switches.
+struct NowPlayingView: View {
+    @StateObject private var viewModel: PlayerViewModel
     @ObservedObject var library: LibraryViewModel
     @StateObject private var settings = SettingsStore.shared
-    @Binding var detent: PresentationDetent
-    let onStop: () -> Void
 
     @State private var showSleepSheet = false
     @State private var showChaptersSheet = false
 
-    static let midDetent: PresentationDetent = .fraction(0.55)
+    let onStop: () -> Void
+
+    init(book: Audiobook, library: LibraryViewModel, onStop: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: PlayerViewModel(book: book, library: library))
+        _library = ObservedObject(wrappedValue: library)
+        self.onStop = onStop
+    }
 
     var body: some View {
-        GeometryReader { proxy in
-            let h = proxy.size.height
-            // Full extras (speed dial / sleep / chapters / Stop) bloom in once
-            // the sheet pushes past the mid layout's natural height.
-            let fullExtraOpacity = Self.opacityRising(in: 420...560, height: h)
-            expandedBody(fullExtraOpacity: fullExtraOpacity)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 22) {
+                    artwork(size: 240)
+                    titleAuthor
+                    ScrubberView(viewModel: viewModel)
+                        .padding(.horizontal, -16)
+                    TransportControlsView(viewModel: viewModel)
+                    SpeedDialView(viewModel: viewModel)
+                    supplementaryRow
+                    stopButton
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 18)
+                .padding(.bottom, 36)
+                .frame(maxWidth: .infinity)
+            }
+            .cassetteBackground()
+            .navigationTitle("Now Playing")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .background(Color.clear.cassetteBackground())
+        .onDisappear { /* keep viewModel alive across tab switches */ }
         .sheet(isPresented: $showSleepSheet) {
             sleepTimerSheet.presentationDetents([.medium])
         }
@@ -40,58 +53,6 @@ struct PlayerSheet: View {
                                     set: { if !$0 { viewModel.playbackError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: { Text(viewModel.playbackError ?? "") }
-    }
-
-    // MARK: - Layouts
-
-    /// Single expanded layout used for both mid and full detents. The artwork
-    /// grows with available height and the speed dial / supplementary row /
-    /// Stop button cross-fade in once the sheet pushes past mid.
-    private func expandedBody(fullExtraOpacity: Double) -> some View {
-        GeometryReader { proxy in
-            let h = proxy.size.height
-            // Artwork grows from ~150 at mid to ~280 at full, capped to a
-            // sensible portion of the available height.
-            let artworkSize = min(280, max(150, h * 0.42))
-
-            ScrollView {
-                VStack(spacing: 22) {
-                    artwork(size: artworkSize)
-                    titleAuthor
-                    ScrubberView(viewModel: viewModel)
-                        .padding(.horizontal, -16)
-                    TransportControlsView(viewModel: viewModel)
-
-                    // Cross-faded extras — kept in the layout so the bloom
-                    // stays in sync with the sheet's own resize.
-                    VStack(spacing: 22) {
-                        SpeedDialView(viewModel: viewModel)
-                        supplementaryRow
-                        stopButton
-                    }
-                    .opacity(fullExtraOpacity)
-                    .scaleEffect(0.95 + 0.05 * fullExtraOpacity, anchor: .top)
-                    .allowsHitTesting(fullExtraOpacity > 0.5)
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 18)
-                .padding(.bottom, 36)
-                .frame(maxWidth: .infinity)
-            }
-            .scrollDisabled(h < 560)
-        }
-    }
-
-    // MARK: - Easing helpers
-
-    /// 0 → 1 across `range`.
-    private static func opacityRising(in range: ClosedRange<CGFloat>, height: CGFloat) -> Double {
-        let t = (height - range.lowerBound) / (range.upperBound - range.lowerBound)
-        return Double(clamp(t, 0, 1))
-    }
-
-    private static func clamp(_ x: CGFloat, _ lo: CGFloat, _ hi: CGFloat) -> CGFloat {
-        min(hi, max(lo, x))
     }
 
     // MARK: - Pieces
@@ -160,11 +121,12 @@ struct PlayerSheet: View {
         }
     }
 
-    /// The deliberate, only-on-full-detent escape hatch from playback. Pauses
-    /// then signals the host to drop the current player.
+    /// The only escape hatch from playback. Pauses, tears down audio, and
+    /// signals the host to clear the current book — which removes this tab.
     private var stopButton: some View {
         Button(role: .destructive) {
             viewModel.pause()
+            viewModel.tearDown()
             onStop()
         } label: {
             Label("Stop Playback", systemImage: "stop.fill")
