@@ -2,30 +2,35 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var library: LibraryViewModel
+    @State private var playerDetent: PresentationDetent = PlayerSheet.midDetent
 
     var body: some View {
-        ZStack {
-            TabView {
-                LibraryView(library: library)
-                    .tabItem { Label("Library", systemImage: "books.vertical.fill") }
+        TabView {
+            LibraryView(library: library)
+                .tabItem { Label("Library", systemImage: "books.vertical.fill") }
 
-                DiscoverView(library: library)
-                    .tabItem { Label("Discover", systemImage: "sparkles") }
-                    .badge(library.activeDownloads.isEmpty ? nil : Text("↓"))
+            DiscoverView(library: library)
+                .tabItem { Label("Discover", systemImage: "sparkles") }
+                .badge(library.activeDownloads.isEmpty ? nil : Text("↓"))
 
-                SettingsView()
-                    .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-            }
-
-            if let book = library.presentingPlayerBook {
-                WalkmanPlayerView(book: book, library: library) {
-                    library.presentingPlayerBook = nil
-                }
-                .transition(.opacity)
-                .zIndex(10)
-            }
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
         }
-        .animation(.easeInOut(duration: 0.2), value: library.presentingPlayerBook?.id)
+        .sheet(item: $library.presentingPlayerBook) { book in
+            PlayerSheet(book: book, library: library, detent: $playerDetent)
+                .id(book.id)
+                .presentationDetents(
+                    [PlayerSheet.miniDetent, PlayerSheet.midDetent, .large],
+                    selection: $playerDetent
+                )
+                .presentationBackgroundInteraction(.enabled(upThrough: PlayerSheet.midDetent))
+                .presentationDragIndicator(.visible)
+                .presentationContentInteraction(.scrolls)
+                .onAppear {
+                    // Reset to the default detent for each new book.
+                    playerDetent = PlayerSheet.midDetent
+                }
+        }
     }
 }
 

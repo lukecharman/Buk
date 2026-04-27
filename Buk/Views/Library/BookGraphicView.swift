@@ -7,7 +7,8 @@ import SwiftUI
 ///
 /// Used on the library tile (always closed) and the library detail screen,
 /// where it animates open after the matched-geometry morph settles. The Player
-/// view continues to use `CassetteDeckView`.
+/// sheet uses the cover art directly when available, falling back to a closed
+/// `BookGraphicView` for books without artwork.
 struct BookGraphicView: View {
     let title: String
     let subtitle: String?
