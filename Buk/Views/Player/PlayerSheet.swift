@@ -1,17 +1,12 @@
 import SwiftUI
 
-/// Multi-detent player sheet. Always presented while a book is current and
-/// fully undismissable — the only way to clear playback is the Stop button
-/// inside the full detent.
+/// Multi-detent player sheet. Presented when the user taps the dedicated
+/// "Now Playing" tab in the tab bar.
 ///
-/// Three detents:
-///   * `bar`   – horizontal mini-player bar (artwork, title/author, play/pause)
+/// Two detents:
 ///   * `mid`   – artwork, title/author, scrubber, full transport row
-///   * `full`  – everything plus speed dial, sleep timer, chapters, and Stop
-///
-/// The `bar` detent is sized to sit just above the system tab bar; the host
-/// uses `presentationBackgroundInteraction(.enabled(upThrough: barDetent))`
-/// so the tab bar stays tappable while the bar is showing.
+///   * `full`  – everything plus speed dial, sleep timer, chapters, and the
+///               Stop button (the only way to fully end playback)
 struct PlayerSheet: View {
     @ObservedObject var viewModel: PlayerViewModel
     @ObservedObject var library: LibraryViewModel
@@ -22,35 +17,16 @@ struct PlayerSheet: View {
     @State private var showSleepSheet = false
     @State private var showChaptersSheet = false
 
-    static let barDetent: PresentationDetent = .height(72)
     static let midDetent: PresentationDetent = .fraction(0.55)
-
-    /// Heights below this are treated as "fully bar"; above the upper bound,
-    /// the bar layout has fully faded out. The crossfade window is small so
-    /// the bar never lingers half-transparent while the user is scrubbing
-    /// through the mid layout.
-    private static let barFadeRange: ClosedRange<CGFloat> = 96...160
 
     var body: some View {
         GeometryReader { proxy in
             let h = proxy.size.height
-            let barOpacity = Self.opacityFalling(in: Self.barFadeRange, height: h)
-            // Mid is the "rest of the way up" — visible from the moment the
-            // bar starts fading out, all the way to the top.
-            let midOpacity = 1 - barOpacity
             // Full extras (speed dial / sleep / chapters / Stop) bloom in once
             // the sheet pushes past the mid layout's natural height.
             let fullExtraOpacity = Self.opacityRising(in: 420...560, height: h)
-
-            ZStack(alignment: .top) {
-                barBody
-                    .opacity(barOpacity)
-                    .allowsHitTesting(barOpacity > 0.5)
-                expandedBody(fullExtraOpacity: fullExtraOpacity)
-                    .opacity(midOpacity)
-                    .allowsHitTesting(midOpacity > 0.5)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            expandedBody(fullExtraOpacity: fullExtraOpacity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .background(Color.clear.cassetteBackground())
         .sheet(isPresented: $showSleepSheet) {
@@ -67,45 +43,6 @@ struct PlayerSheet: View {
     }
 
     // MARK: - Layouts
-
-    /// Smallest detent. A horizontal mini-player strip sized to sit above the
-    /// system tab bar. Tapping anywhere outside the play/pause button expands
-    /// the sheet to `mid`.
-    private var barBody: some View {
-        HStack(spacing: 12) {
-            artwork(size: 44)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.book.title)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
-                if let author = viewModel.book.author {
-                    Text(author)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            Spacer(minLength: 4)
-            Button {
-                viewModel.togglePlay()
-            } label: {
-                Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                    .font(.system(size: 18, weight: .heavy))
-                    .frame(width: 40, height: 40)
-            }
-            .buttonStyle(.plain)
-            .cassetteGlassCircle(tint: CassettePalette.recordRed.opacity(0.85))
-            .accessibilityLabel(viewModel.isPlaying ? "Pause" : "Play")
-            // Stop tap-through to the row so play/pause doesn't expand the sheet.
-            .simultaneousGesture(TapGesture())
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            detent = Self.midDetent
-        }
-    }
 
     /// Single expanded layout used for both mid and full detents. The artwork
     /// grows with available height and the speed dial / supplementary row /
@@ -125,16 +62,14 @@ struct PlayerSheet: View {
                         .padding(.horizontal, -16)
                     TransportControlsView(viewModel: viewModel)
 
-                    // Cross-faded extras — kept in the layout (with a height
-                    // multiplier on the container) so the bloom and the
-                    // sheet's own resizing stay in sync.
+                    // Cross-faded extras — kept in the layout so the bloom
+                    // stays in sync with the sheet's own resize.
                     VStack(spacing: 22) {
                         SpeedDialView(viewModel: viewModel)
                         supplementaryRow
                         stopButton
                     }
                     .opacity(fullExtraOpacity)
-                    .frame(height: nil)
                     .scaleEffect(0.95 + 0.05 * fullExtraOpacity, anchor: .top)
                     .allowsHitTesting(fullExtraOpacity > 0.5)
                 }
@@ -148,12 +83,6 @@ struct PlayerSheet: View {
     }
 
     // MARK: - Easing helpers
-
-    /// 1 → 0 across `range` (low end fully visible, high end fully faded).
-    private static func opacityFalling(in range: ClosedRange<CGFloat>, height: CGFloat) -> Double {
-        let t = (height - range.lowerBound) / (range.upperBound - range.lowerBound)
-        return Double(1 - clamp(t, 0, 1))
-    }
 
     /// 0 → 1 across `range`.
     private static func opacityRising(in range: ClosedRange<CGFloat>, height: CGFloat) -> Double {
