@@ -21,25 +21,21 @@ struct ContentView: View {
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(Tab.settings)
 
-            // Now Playing tab — only present while a book is current. Lives
-            // inside a regular tab so the tab bar stays visible above it.
-            if let book = library.presentingPlayerBook {
-                NowPlayingView(book: book, library: library) {
+            // Player tab — always present. Shows the Now Playing view when a
+            // book is current, otherwise an empty state.
+            PlayerTabView(
+                library: library,
+                onPickFromLibrary: { selection = .library },
+                onStop: {
                     library.presentingPlayerBook = nil
-                    selection = .library
                 }
-                .id(book.id)
-                .tabItem {
-                    Label(book.title, systemImage: "waveform")
-                }
-                .tag(Tab.player)
-            }
+            )
+            .tabItem { Label("Player", systemImage: "waveform") }
+            .tag(Tab.player)
         }
-        // If the playing book disappears (Stop), bounce off the player tab.
         .onChange(of: library.presentingPlayerBook?.id) { _, newID in
-            if newID == nil && selection == .player {
-                selection = .library
-            }
+            // Auto-jump to Player when a new book starts playing.
+            if newID != nil { selection = .player }
         }
     }
 }
