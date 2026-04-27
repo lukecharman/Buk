@@ -10,13 +10,13 @@ struct CassetteTileView: View {
     /// don't have two views with the same matched id alive at once.
     var isPresentingDetail: Bool = false
 
-    /// Height of the book on the row. Width follows the book's portrait aspect.
-    private let bookHeight: CGFloat = 92
+    /// Side length of the (square) book on the row.
+    private let bookHeight: CGFloat = 88
 
     var body: some View {
         HStack(spacing: 14) {
             tapeView
-                .frame(width: bookHeight * 0.72, height: bookHeight)
+                .frame(width: bookHeight, height: bookHeight)
 
             VStack(alignment: .leading, spacing: 3) {
                 titleText

@@ -20,9 +20,9 @@ struct BookGraphicView: View {
     /// thumbnails where text would be unreadable.
     var showsLabelText: Bool = true
 
-    /// Width / height of the book at rest. Slightly wider than a typical paperback
-    /// so titles fit; same shape regardless of context.
-    private let aspect: CGFloat = 0.72
+    /// Width / height of the book at rest. Square so square cover artwork
+    /// fits without letterboxing — most audiobook covers are 1:1.
+    private let aspect: CGFloat = 1.0
 
     var body: some View {
         let coverColor = BookGraphicView.coverColor(for: id)
@@ -146,7 +146,7 @@ struct BookGraphicView: View {
                 cover
                     .resizable()
                     .scaledToFill()
-                    .frame(width: w * 0.78, height: h * 0.82)
+                    .frame(width: w * 0.86, height: h * 0.86)
                     .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
             } else {
                 Image(systemName: "book.closed.fill")
