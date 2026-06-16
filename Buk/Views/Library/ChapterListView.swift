@@ -6,6 +6,7 @@ import SwiftUI
 struct ChapterListView: View {
     let book: Audiobook
     let progress: PlaybackProgress
+    @StateObject private var settings = SettingsStore.shared
     /// If non-nil, tapping a chapter calls this closure (used from the player sheet).
     /// If nil, tapping pushes a `PlayerView` starting at that chapter.
     let onSelect: ((Int) -> Void)?
@@ -61,14 +62,14 @@ struct ChapterListView: View {
                 .foregroundStyle(CassettePalette.lcdGreen)
         } else if index == progress.chapterIndex {
             Image(systemName: "speaker.wave.2.fill")
-                .foregroundStyle(CassettePalette.recordRed)
+                .foregroundStyle(settings.accent)
         } else {
             Image(systemName: "chevron.right").foregroundStyle(.tertiary)
         }
     }
 
     private func currentBackground(for index: Int) -> Color {
-        index == progress.chapterIndex ? CassettePalette.recordRed.opacity(0.08) : .clear
+        index == progress.chapterIndex ? settings.accent.opacity(0.08) : .clear
     }
 
     private func formatted(_ seconds: TimeInterval) -> String {

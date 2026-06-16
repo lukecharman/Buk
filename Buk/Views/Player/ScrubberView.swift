@@ -4,6 +4,7 @@ import SwiftUI
 /// remaining times in monospaced "tape counter" type.
 struct ScrubberView: View {
     @ObservedObject var viewModel: PlayerViewModel
+    @StateObject private var settings = SettingsStore.shared
     @State private var dragFraction: Double?
     @State private var isDragging = false
 
@@ -19,7 +20,7 @@ struct ScrubberView: View {
                         .fill(CassettePalette.aluminium.opacity(0.35))
                         .frame(height: 6)
                     Capsule()
-                        .fill(CassettePalette.recordRed)
+                        .fill(settings.accent)
                         .frame(width: knobX, height: 6)
                     Circle()
                         .fill(.white)

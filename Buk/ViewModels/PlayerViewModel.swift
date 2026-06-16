@@ -49,15 +49,26 @@ final class PlayerViewModel: ObservableObject {
         self.settings = settings
         self.playbackRate = settings.defaultPlaybackRate
 
-        let url = LibraryPaths.audioFolder.appendingPathComponent(book.fileName)
-        let item = AVPlayerItem(url: url)
-        self.player = AVPlayer(playerItem: item)
-        self.player.automaticallyWaitsToMinimizeStalling = true
-
         AudioSessionManager.configure()
-        attachObservers(item: item)
-        attachNowPlaying()
-        Task { await restoreProgress() }
+
+        let fileNames = book.allFileNames
+        if fileNames.count <= 1 {
+            // Single-file book: load the asset directly for instant playback.
+            let url = LibraryPaths.audioFolder.appendingPathComponent(fileNames.first ?? book.fileName)
+            let item = AVPlayerItem(url: url)
+            self.player = AVPlayer(playerItem: item)
+            self.player.automaticallyWaitsToMinimizeStalling = true
+            attachObservers(item: item)
+            attachNowPlaying()
+            Task { await restoreProgress() }
+        } else {
+            // Multi-file book: stitch the files into one continuous timeline so the
+            // rest of the player (chapters, seeking, duration) is unchanged.
+            self.player = AVPlayer()
+            self.player.automaticallyWaitsToMinimizeStalling = true
+            attachNowPlaying()
+            Task { await setUpCompositionPlayback(fileNames: fileNames) }
+        }
     }
 
     deinit {
@@ -131,6 +142,47 @@ final class PlayerViewModel: ObservableObject {
             seek(to: saved.position, persist: false)
         }
         isReady = true
+    }
+
+    /// Builds a single `AVPlayerItem` that plays every file in the book back-to-back,
+    /// then wires up the observers and restores progress once it's ready.
+    private func setUpCompositionPlayback(fileNames: [String]) async {
+        guard let item = await makeCompositionItem(fileNames: fileNames) else {
+            playbackError = "Couldn't prepare this audiobook for playback."
+            isReady = true
+            return
+        }
+        player.replaceCurrentItem(with: item)
+        attachObservers(item: item)
+        await restoreProgress()
+    }
+
+    /// Concatenates the audio tracks of `fileNames` into one composition, in order.
+    private func makeCompositionItem(fileNames: [String]) async -> AVPlayerItem? {
+        let composition = AVMutableComposition()
+        guard let audioTrack = composition.addMutableTrack(
+            withMediaType: .audio,
+            preferredTrackID: kCMPersistentTrackID_Invalid
+        ) else { return nil }
+
+        var cursor = CMTime.zero
+        for name in fileNames {
+            let url = LibraryPaths.audioFolder.appendingPathComponent(name)
+            let asset = AVURLAsset(url: url)
+            do {
+                let tracks = try await asset.loadTracks(withMediaType: .audio)
+                let duration = try await asset.load(.duration)
+                guard let sourceTrack = tracks.first, duration.seconds.isFinite, duration > .zero else { continue }
+                let range = CMTimeRange(start: .zero, duration: duration)
+                try audioTrack.insertTimeRange(range, of: sourceTrack, at: cursor)
+                cursor = cursor + duration
+            } catch {
+                continue
+            }
+        }
+
+        guard cursor > .zero else { return nil }
+        return AVPlayerItem(asset: composition)
     }
 
     // MARK: - Transport

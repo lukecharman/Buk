@@ -13,12 +13,29 @@ final class LibraryViewModel: ObservableObject {
     @Published private(set) var isImporting = false
     @Published var importError: String?
     /// The book currently presented in the Walkman player overlay, if any.
-    @Published var presentingPlayerBook: Audiobook?
+    @Published var presentingPlayerBook: Audiobook? {
+        didSet {
+            guard oldValue?.id != presentingPlayerBook?.id else { return }
+            currentPlayer?.tearDown()
+            if let book = presentingPlayerBook {
+                currentPlayer = PlayerViewModel(book: book, library: self)
+            } else {
+                currentPlayer = nil
+            }
+        }
+    }
+    /// The live player for `presentingPlayerBook`, owned here so it persists
+    /// across tab switches and is shared with the tab-bar mini player.
+    @Published private(set) var currentPlayer: PlayerViewModel?
     /// Active downloads keyed by `CatalogBook.id`.
     @Published private(set) var activeDownloads: [String: Double] = [:]
 
     private let store: LibraryStore
     let progressStore: ProgressStore
+
+    /// Set while restoring the last-played book on launch, so the UI can avoid
+    /// auto-switching to the Player tab during a silent session restore.
+    var isRestoringPlayer = false
 
     init(store: LibraryStore = LibraryStore(), progressStore: ProgressStore = ProgressStore()) {
         self.store = store
@@ -33,6 +50,20 @@ final class LibraryViewModel: ObservableObject {
         if books.isEmpty {
             await importBundledAudiobooks()
         }
+        restoreLastPlayedBook()
+    }
+
+    /// Re-presents the book the user most recently listened to (if any), so the
+    /// Player tab resumes from the saved position after an app relaunch.
+    private func restoreLastPlayedBook() {
+        guard presentingPlayerBook == nil else { return }
+        let candidate = progress.values
+            .filter { $0.updatedAt > .distantPast && !$0.isFinished }
+            .max { $0.updatedAt < $1.updatedAt }
+        guard let lastID = candidate?.bookID,
+              let book = books.first(where: { $0.id == lastID }) else { return }
+        isRestoringPlayer = true
+        presentingPlayerBook = book
     }
 
     // MARK: - Import
@@ -45,6 +76,57 @@ final class LibraryViewModel: ObservableObject {
             insert(book)
         } catch {
             importError = "Couldn't import \"\(url.lastPathComponent)\": \(error.localizedDescription)"
+        }
+    }
+
+    /// Imports a user selection from the Files importer. Folders are expanded into
+    /// their contained audio files, and any group of multiple files is merged into a
+    /// single audiobook with one chapter per file:
+    ///
+    /// - Each selected folder becomes one audiobook (its audio files = chapters).
+    /// - Multiple loosely-selected files become one audiobook (named after their
+    ///   parent folder), since selecting every file in a folder is the common way to
+    ///   "import a folder" from the iOS Files picker.
+    /// - A single selected file imports as a normal single-file book.
+    func importSelection(_ urls: [URL]) async {
+        isImporting = true
+        defer { isImporting = false }
+
+        // Hold security-scoped access for every picked URL until all copies finish.
+        let scoped = urls.map { ($0, $0.startAccessingSecurityScopedResource()) }
+        defer { for (url, ok) in scoped where ok { url.stopAccessingSecurityScopedResource() } }
+
+        var folderGroups: [(title: String, files: [URL])] = []
+        var looseFiles: [URL] = []
+        for url in urls {
+            if isDirectory(url) {
+                let files = audioFiles(in: url)
+                if !files.isEmpty {
+                    folderGroups.append((url.lastPathComponent, files))
+                }
+            } else if isAudioFile(url) {
+                looseFiles.append(url)
+            }
+        }
+
+        do {
+            for group in folderGroups {
+                let book = try await ingestGroup(urls: group.files,
+                                                 title: group.title,
+                                                 source: .importedFile)
+                insert(book)
+            }
+            if looseFiles.count == 1 {
+                let book = try await ingest(url: looseFiles[0], source: .importedFile)
+                insert(book)
+            } else if looseFiles.count > 1 {
+                let sorted = sortedNaturally(looseFiles)
+                let title = looseFiles[0].deletingLastPathComponent().lastPathComponent
+                let book = try await ingestGroup(urls: sorted, title: title, source: .importedFile)
+                insert(book)
+            }
+        } catch {
+            importError = "Couldn't import the selected audio: \(error.localizedDescription)"
         }
     }
 
@@ -128,6 +210,109 @@ final class LibraryViewModel: ObservableObject {
             dateAdded: Date(),
             chapters: metadata.chapters
         )
+    }
+
+    /// Merges several audio files into a single audiobook, one chapter per file laid
+    /// out on a continuous timeline. The first file with embedded artwork / author /
+    /// narrator metadata provides those fields for the whole book.
+    private func ingestGroup(urls: [URL],
+                             title: String,
+                             source: Audiobook.Source) async throws -> Audiobook {
+        var fileNames: [String] = []
+        var chapters: [Audiobook.Chapter] = []
+        var cursor: TimeInterval = 0
+        var artworkFileName: String?
+        var author: String?
+        var narrator: String?
+
+        for url in urls {
+            let (destination, fileName) = try await store.ingestAudioFile(at: url)
+            let asset = AVURLAsset(url: destination)
+            let metadata = try await BookImporter.read(asset: asset)
+
+            fileNames.append(fileName)
+            chapters.append(Audiobook.Chapter(id: UUID(),
+                                              title: metadata.title,
+                                              startTime: cursor,
+                                              duration: metadata.duration))
+            cursor += metadata.duration
+            if author == nil { author = metadata.author }
+            if narrator == nil { narrator = metadata.narrator }
+            if artworkFileName == nil, let data = metadata.artworkData {
+                artworkFileName = try? await store.writeArtwork(data)
+            }
+        }
+
+        guard let firstFile = fileNames.first else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+
+        return Audiobook(
+            id: UUID(),
+            title: title,
+            author: author,
+            narrator: narrator,
+            fileName: firstFile,
+            fileNames: fileNames,
+            artworkFileName: artworkFileName,
+            duration: cursor,
+            source: source,
+            dateAdded: Date(),
+            chapters: chapters
+        )
+    }
+
+    // MARK: - File selection helpers
+
+    private func isDirectory(_ url: URL) -> Bool {
+        (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+    }
+
+    private func isAudioFile(_ url: URL) -> Bool {
+        SharedInbox.isAudioFile(url)
+    }
+
+    /// Returns the audio files inside `folder` (recursively), sorted in natural order
+    /// so "Track 2" comes before "Track 10".
+    private func audioFiles(in folder: URL) -> [URL] {
+        SharedInbox.audioFiles(in: folder)
+    }
+
+    private func sortedNaturally(_ urls: [URL]) -> [URL] {
+        SharedInbox.naturalSort(urls)
+    }
+
+    // MARK: - Shared inbox (Share extension hand-off)
+
+    /// Imports anything the Share extension dropped into the App Group inbox. Each
+    /// pending directory becomes one audiobook (a chapter per file). Safe to call
+    /// repeatedly; processed directories are removed.
+    func importPendingShares() async {
+        let groups = SharedInbox.pendingGroups()
+        guard !groups.isEmpty else { return }
+
+        isImporting = true
+        defer { isImporting = false }
+
+        for group in groups {
+            let files = SharedInbox.audioFiles(in: group)
+            defer { SharedInbox.remove(group) }
+            guard !files.isEmpty else { continue }
+
+            let title = SharedInbox.title(in: group)
+                ?? files[0].deletingPathExtension().lastPathComponent
+            do {
+                if files.count == 1 {
+                    let book = try await ingest(url: files[0], source: .importedFile)
+                    insert(book)
+                } else {
+                    let book = try await ingestGroup(urls: files, title: title, source: .importedFile)
+                    insert(book)
+                }
+            } catch {
+                importError = "Couldn't import shared audio: \(error.localizedDescription)"
+            }
+        }
     }
 
     // MARK: - Progress

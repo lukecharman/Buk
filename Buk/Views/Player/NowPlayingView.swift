@@ -4,19 +4,17 @@ import SwiftUI
 /// "Now Playing" tab while a book is current. Owns the long-lived
 /// `PlayerViewModel` so playback persists across tab switches.
 struct NowPlayingView: View {
-    @StateObject private var viewModel: PlayerViewModel
+    @ObservedObject var viewModel: PlayerViewModel
     @ObservedObject var library: LibraryViewModel
     @StateObject private var settings = SettingsStore.shared
 
     @State private var showSleepSheet = false
     @State private var showChaptersSheet = false
+    @State private var showSpeedPopover = false
 
-    let onStop: () -> Void
-
-    init(book: Audiobook, library: LibraryViewModel, onStop: @escaping () -> Void) {
-        _viewModel = StateObject(wrappedValue: PlayerViewModel(book: book, library: library))
+    init(viewModel: PlayerViewModel, library: LibraryViewModel) {
+        _viewModel = ObservedObject(wrappedValue: viewModel)
         _library = ObservedObject(wrappedValue: library)
-        self.onStop = onStop
     }
 
     var body: some View {
@@ -28,9 +26,7 @@ struct NowPlayingView: View {
                     ScrubberView(viewModel: viewModel)
                         .padding(.horizontal, -16)
                     TransportControlsView(viewModel: viewModel)
-                    SpeedDialView(viewModel: viewModel)
                     supplementaryRow
-                    stopButton
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 18)
@@ -118,24 +114,58 @@ struct NowPlayingView: View {
             }
             .buttonStyle(.plain)
             .cassetteGlass(cornerRadius: 14)
+
+            speedMenu
         }
     }
 
-    /// The only escape hatch from playback. Pauses, tears down audio, and
-    /// signals the host to clear the current book — which removes this tab.
-    private var stopButton: some View {
-        Button(role: .destructive) {
-            viewModel.pause()
-            viewModel.tearDown()
-            onStop()
+    private var speedMenu: some View {
+        Button {
+            showSpeedPopover = true
         } label: {
-            Label("Stop Playback", systemImage: "stop.fill")
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 18).padding(.vertical, 10)
+            Label(rateLabel(viewModel.playbackRate), systemImage: "gauge.with.dots.needle.67percent")
+                .monospacedDigit()
+                .padding(.horizontal, 14).padding(.vertical, 10)
         }
         .buttonStyle(.plain)
         .cassetteGlass(cornerRadius: 14)
-        .padding(.top, 8)
+        .accessibilityLabel("Playback speed \(rateLabel(viewModel.playbackRate))")
+        .popover(isPresented: $showSpeedPopover, arrowEdge: .top) {
+            speedSlider
+                .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    private var speedSlider: some View {
+        VStack(spacing: 12) {
+            Text(rateLabel(viewModel.playbackRate))
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
+
+            HStack(spacing: 12) {
+                Image(systemName: "tortoise.fill")
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+
+                Slider(
+                    value: $viewModel.playbackRate,
+                    in: 0.5...2.5,
+                    step: 0.05
+                )
+                .accessibilityLabel("Playback speed")
+                .accessibilityValue(rateLabel(viewModel.playbackRate))
+
+                Image(systemName: "hare.fill")
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 280)
+    }
+
+    private func rateLabel(_ rate: Double) -> String {
+        rate == floor(rate) ? String(format: "%.0f×", rate) : String(format: "%.2f×", rate)
     }
 
     private var sleepLabel: String {

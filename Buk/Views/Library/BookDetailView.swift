@@ -10,6 +10,7 @@ import SwiftUI
 struct BookDetailView: View {
     let book: Audiobook
     @ObservedObject var library: LibraryViewModel
+    @StateObject private var settings = SettingsStore.shared
     let transitionNamespace: Namespace.ID?
     /// External close trigger — when this token changes, run our dismiss
     /// animation. Lets the parent's toolbar button drive the same fade/morph
@@ -233,7 +234,7 @@ struct BookDetailView: View {
                     .padding(.horizontal, 28).padding(.vertical, 12)
             }
             .buttonStyle(.plain)
-            .cassetteGlass(cornerRadius: 22, tint: CassettePalette.recordRed.opacity(0.85))
+            .cassetteGlass(cornerRadius: 22, tint: settings.accent.opacity(0.85))
 
             ChapterListView(book: book,
                             progress: library.progress(for: book),

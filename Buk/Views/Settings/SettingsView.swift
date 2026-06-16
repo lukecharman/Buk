@@ -19,14 +19,65 @@ struct SettingsView: View {
                     }
                 }
                 Section("Playback") {
-                    Picker("Default speed", selection: $settings.defaultPlaybackRate) {
-                        ForEach(SettingsStore.allowedRates, id: \.self) { rate in
-                            Text(rate == floor(rate) ? String(format: "%.0f×", rate)
-                                                     : String(format: "%.2f×", rate))
-                                .tag(rate)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Default speed")
+                            Spacer()
+                            Text(rateLabel(settings.defaultPlaybackRate))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                        HStack(spacing: 12) {
+                            Image(systemName: "tortoise.fill")
+                                .foregroundStyle(.secondary)
+                                .accessibilityHidden(true)
+
+                            Slider(
+                                value: $settings.defaultPlaybackRate,
+                                in: 0.5...2.5,
+                                step: 0.05
+                            )
+                            .accessibilityLabel("Default playback speed")
+                            .accessibilityValue(rateLabel(settings.defaultPlaybackRate))
+
+                            Image(systemName: "hare.fill")
+                                .foregroundStyle(.secondary)
+                                .accessibilityHidden(true)
                         }
                     }
                     Toggle("Auto-play next chapter", isOn: $settings.autoPlayNextChapter)
+                }
+                Section("Appearance") {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Tint")
+                        HStack(spacing: 12) {
+                            ForEach(AppTint.allCases) { tint in
+                                Button {
+                                    settings.appTint = tint
+                                } label: {
+                                    Circle()
+                                        .fill(tint.color)
+                                        .frame(width: 30, height: 30)
+                                        .overlay {
+                                            Circle()
+                                                .strokeBorder(.primary, lineWidth: settings.appTint == tint ? 2.5 : 0)
+                                        }
+                                        .overlay {
+                                            if settings.appTint == tint {
+                                                Image(systemName: "checkmark")
+                                                    .font(.caption2.weight(.bold))
+                                                    .foregroundStyle(.white)
+                                            }
+                                        }
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(tint.displayName)
+                                .accessibilityAddTraits(settings.appTint == tint ? [.isSelected] : [])
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.vertical, 4)
                 }
                 Section("About") {
                     HStack { Text("Version"); Spacer(); Text(Bundle.main.shortVersion).foregroundStyle(.secondary) }
@@ -41,6 +92,10 @@ struct SettingsView: View {
             .cassetteBackground()
             .navigationTitle("Settings")
         }
+    }
+
+    private func rateLabel(_ rate: Double) -> String {
+        rate == floor(rate) ? String(format: "%.0f×", rate) : String(format: "%.2f×", rate)
     }
 }
 

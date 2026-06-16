@@ -18,7 +18,7 @@ struct TransportControlsView: View {
 
             cassetteButton(systemImage: viewModel.isPlaying ? "pause.fill" : "play.fill",
                             size: .large,
-                            tint: CassettePalette.recordRed.opacity(0.85)) {
+                            tint: settings.accent.opacity(0.85)) {
                 viewModel.togglePlay()
             }
             .accessibilityLabel(viewModel.isPlaying ? "Pause" : "Play")

@@ -13,7 +13,7 @@ struct DiscoverView: View {
                 .cassetteBackground()
                 .navigationTitle("Discover")
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         if viewModel.providers.count > 1 {
                             Menu {
                                 ForEach(viewModel.providers, id: \.id) { provider in
@@ -29,7 +29,9 @@ struct DiscoverView: View {
                         }
                     }
                 }
-                .searchable(text: $viewModel.query, prompt: "Search audiobooks")
+                .searchable(text: $viewModel.query,
+                            placement: .navigationBarDrawer(displayMode: .always),
+                            prompt: "Search audiobooks")
                 .onSubmit(of: .search) {
                     triggerSearch(immediate: true)
                 }

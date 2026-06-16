@@ -31,13 +31,7 @@ struct LibraryView: View {
                     ) { result in
                         switch result {
                         case .success(let urls):
-                            for url in urls {
-                                let accessed = url.startAccessingSecurityScopedResource()
-                                Task {
-                                    defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-                                    await library.importBook(from: url)
-                                }
-                            }
+                            Task { await library.importSelection(urls) }
                         case .failure:
                             break
                         }
@@ -154,7 +148,7 @@ struct LibraryView: View {
     }
 
     private var importContentTypes: [UTType] {
-        var types: [UTType] = [.audio, .mp3]
+        var types: [UTType] = [.audio, .mp3, .folder]
         if let m4b = UTType(filenameExtension: "m4b") { types.append(m4b) }
         if let m4a = UTType(filenameExtension: "m4a") { types.append(m4a) }
         return types

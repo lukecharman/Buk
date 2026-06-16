@@ -5,6 +5,7 @@ import SwiftUI
 struct CassetteTileView: View {
     let book: Audiobook
     let progress: Double
+    @StateObject private var settings = SettingsStore.shared
     var transitionNamespace: Namespace.ID? = nil
     /// Hide the matched elements while the detail overlay owns them, so we
     /// don't have two views with the same matched id alive at once.
@@ -35,7 +36,7 @@ struct CassetteTileView: View {
         if progress >= 0.99 {
             badge("Finished", color: CassettePalette.lcdGreen)
         } else if progress > 0.01 {
-            badge(String(format: "%.0f%%", progress * 100), color: CassettePalette.recordRed)
+            badge(String(format: "%.0f%%", progress * 100), color: settings.accent)
         }
     }
 

@@ -5,11 +5,10 @@ import SwiftUI
 struct PlayerTabView: View {
     @ObservedObject var library: LibraryViewModel
     let onPickFromLibrary: () -> Void
-    let onStop: () -> Void
 
     var body: some View {
-        if let book = library.presentingPlayerBook {
-            NowPlayingView(book: book, library: library, onStop: onStop)
+        if let book = library.presentingPlayerBook, let player = library.currentPlayer {
+            NowPlayingView(viewModel: player, library: library)
                 .id(book.id)
         } else {
             NavigationStack {

@@ -41,8 +41,9 @@ actor LibraryStore {
     /// Removes all files belonging to a book from disk. Safe to call for a book that
     /// no longer exists.
     func deleteFiles(for book: Audiobook) {
-        let audio = audioFolder.appendingPathComponent(book.fileName)
-        try? FileManager.default.removeItem(at: audio)
+        for name in book.allFileNames {
+            try? FileManager.default.removeItem(at: audioFolder.appendingPathComponent(name))
+        }
         if let art = book.artworkFileName {
             try? FileManager.default.removeItem(at: artworkFolder.appendingPathComponent(art))
         }

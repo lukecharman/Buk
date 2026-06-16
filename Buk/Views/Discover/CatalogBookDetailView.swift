@@ -6,6 +6,7 @@ struct CatalogBookDetailView: View {
     let book: CatalogBook
     @ObservedObject var library: LibraryViewModel
     @ObservedObject var viewModel: DiscoverViewModel
+    @StateObject private var settings = SettingsStore.shared
 
     var body: some View {
         ScrollView {
@@ -81,7 +82,7 @@ struct CatalogBookDetailView: View {
                     .padding(.horizontal, 24).padding(.vertical, 12)
             }
             .buttonStyle(.plain)
-            .cassetteGlass(cornerRadius: 22, tint: CassettePalette.recordRed.opacity(0.85))
+            .cassetteGlass(cornerRadius: 22, tint: settings.accent.opacity(0.85))
         }
     }
 

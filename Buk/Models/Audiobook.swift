@@ -25,7 +25,12 @@ struct Audiobook: Identifiable, Codable, Hashable {
     var author: String?
     var narrator: String?
     /// File name (not full path) of the audio file inside the library folder.
+    /// For multi-file books this is the first file (kept for backward compatibility).
     var fileName: String
+    /// File names (not full paths) of every audio file inside the library folder, in
+    /// playback order. `nil` for books imported before multi-file support; use
+    /// `allFileNames` to read the files regardless of how the book was stored.
+    var fileNames: [String]? = nil
     /// File name (not full path) of the cached artwork inside the artwork folder.
     var artworkFileName: String?
     /// Total duration of the audio in seconds.
@@ -45,6 +50,13 @@ struct Audiobook: Identifiable, Codable, Hashable {
 }
 
 extension Audiobook {
+    /// Every audio file backing this book, in playback order. Single-file books
+    /// (and books stored before multi-file support) return just `[fileName]`.
+    var allFileNames: [String] {
+        if let fileNames, !fileNames.isEmpty { return fileNames }
+        return [fileName]
+    }
+
     /// Returns the artwork as a SwiftUI `Image` if the cached file exists and decodes.
     /// Decoded `UIImage`/`NSImage` instances are cached per artwork filename so the
     /// row and detail screens share the same backing image — without this, the

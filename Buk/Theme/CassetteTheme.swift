@@ -30,6 +30,40 @@ enum CassettePalette {
     )
 }
 
+/// The user-selectable accent tint applied across the app. Defaults to the
+/// classic record-light red so the cassette aesthetic is preserved.
+enum AppTint: String, CaseIterable, Identifiable {
+    case red, orange, amber, green, teal, blue, plum, magenta
+
+    var id: String { rawValue }
+
+    var color: Color {
+        switch self {
+        case .red:     return Color(red: 0.85, green: 0.18, blue: 0.18)
+        case .orange:  return Color(red: 0.90, green: 0.45, blue: 0.15)
+        case .amber:   return Color(red: 0.85, green: 0.62, blue: 0.16)
+        case .green:   return Color(red: 0.20, green: 0.52, blue: 0.30)
+        case .teal:    return Color(red: 0.13, green: 0.52, blue: 0.53)
+        case .blue:    return Color(red: 0.16, green: 0.40, blue: 0.72)
+        case .plum:    return Color(red: 0.45, green: 0.27, blue: 0.60)
+        case .magenta: return Color(red: 0.78, green: 0.24, blue: 0.48)
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .red:     return "Record Red"
+        case .orange:  return "Sunburst"
+        case .amber:   return "Amber"
+        case .green:   return "Forest"
+        case .teal:    return "Teal"
+        case .blue:    return "Ocean"
+        case .plum:    return "Plum"
+        case .magenta: return "Magenta"
+        }
+    }
+}
+
 enum CassetteFont {
     /// Used for the "label paper" titles on cassette tiles and the player.
     static func label(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {

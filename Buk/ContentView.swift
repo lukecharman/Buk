@@ -2,38 +2,40 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var library: LibraryViewModel
-    @State private var selection: TabID = .library
-
-    private enum TabID: Hashable { case library, discover, settings, player }
+    @State private var selection: BukTab = .library
 
     var body: some View {
-        TabView(selection: $selection) {
-            Tab("Library", systemImage: "books.vertical.fill", value: TabID.library) {
-                LibraryView(library: library)
-            }
-
-            Tab("Discover", systemImage: "sparkles", value: TabID.discover) {
-                DiscoverView(library: library)
-            }
-            .badge(library.activeDownloads.isEmpty ? nil : Text("↓"))
-
-            Tab("Settings", systemImage: "gearshape.fill", value: TabID.settings) {
-                SettingsView()
-            }
-
-            // Player gets its own liquid-glass capsule, separated from the
-            // other tabs (.search role on iOS 26 floats as a standalone pill).
-            Tab("Player", systemImage: "waveform", value: TabID.player, role: .search) {
+        ZStack {
+            tab(.library) { LibraryView(library: library) }
+            tab(.discover) { DiscoverView(library: library) }
+            tab(.settings) { SettingsView() }
+            tab(.player) {
                 PlayerTabView(
                     library: library,
-                    onPickFromLibrary: { selection = .library },
-                    onStop: { library.presentingPlayerBook = nil }
+                    onPickFromLibrary: { selection = .library }
                 )
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            CustomTabBar(selection: $selection, library: library)
+        }
         .onChange(of: library.presentingPlayerBook?.id) { _, newID in
+            if library.isRestoringPlayer {
+                library.isRestoringPlayer = false
+                return
+            }
             if newID != nil { selection = .player }
         }
+    }
+
+    /// Keeps every destination alive (preserving scroll/search state and avoiding
+    /// reloads) while only the selected one is visible and interactive.
+    @ViewBuilder
+    private func tab<Content: View>(_ tab: BukTab, @ViewBuilder content: () -> Content) -> some View {
+        content()
+            .opacity(selection == tab ? 1 : 0)
+            .allowsHitTesting(selection == tab)
+            .zIndex(selection == tab ? 1 : 0)
     }
 }
 
