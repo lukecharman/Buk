@@ -18,11 +18,34 @@ final class LibraryViewModel: ObservableObject {
             guard oldValue?.id != presentingPlayerBook?.id else { return }
             currentPlayer?.tearDown()
             if let book = presentingPlayerBook {
-                currentPlayer = PlayerViewModel(book: book, library: self)
+                currentPlayer = PlayerViewModel(book: book,
+                                                library: self,
+                                                startChapterIndex: pendingStartChapterIndex,
+                                                autoPlay: pendingAutoPlay)
             } else {
                 currentPlayer = nil
             }
+            pendingStartChapterIndex = nil
+            pendingAutoPlay = false
         }
+    }
+    /// Transient hints consumed by `presentingPlayerBook`'s `didSet` when it
+    /// builds the next `PlayerViewModel`. Set via `openPlayer(for:…)`.
+    private var pendingStartChapterIndex: Int?
+    private var pendingAutoPlay = false
+
+    /// Opens the player for `book`, optionally starting at a specific chapter and
+    /// beginning playback immediately. If the book is already presented, acts on
+    /// the existing player instead of rebuilding it.
+    func openPlayer(for book: Audiobook, startingAtChapter chapterIndex: Int? = nil, autoPlay: Bool = false) {
+        if presentingPlayerBook?.id == book.id, let player = currentPlayer {
+            if let chapterIndex { player.jumpToChapter(at: chapterIndex) }
+            if autoPlay { player.play() }
+            return
+        }
+        pendingStartChapterIndex = chapterIndex
+        pendingAutoPlay = autoPlay
+        presentingPlayerBook = book
     }
     /// The live player for `presentingPlayerBook`, owned here so it persists
     /// across tab switches and is shared with the tab-bar mini player.

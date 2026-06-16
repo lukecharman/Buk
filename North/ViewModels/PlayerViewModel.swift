@@ -41,13 +41,22 @@ final class PlayerViewModel: ObservableObject {
     private var sleepTimerTask: Task<Void, Never>?
     private var lastPersistedSecond: Int = -1
 
+    /// When set, playback starts at this chapter instead of the saved position.
+    private let startChapterIndex: Int?
+    /// When true, playback begins automatically once the player is ready.
+    private let autoPlay: Bool
+
     init(book: Audiobook,
          library: LibraryViewModel,
-         settings: SettingsStore = .shared) {
+         settings: SettingsStore = .shared,
+         startChapterIndex: Int? = nil,
+         autoPlay: Bool = false) {
         self.book = book
         self.library = library
         self.settings = settings
         self.playbackRate = settings.defaultPlaybackRate
+        self.startChapterIndex = startChapterIndex
+        self.autoPlay = autoPlay
 
         AudioSessionManager.configure()
 
@@ -137,11 +146,18 @@ final class PlayerViewModel: ObservableObject {
     }
 
     private func restoreProgress() async {
-        let saved = await library.progressStore.progress(for: book.id)
-        if saved.position > 0, saved.position < book.duration - 1 {
-            seek(to: saved.position, persist: false)
+        if let startChapterIndex, book.chapters.indices.contains(startChapterIndex) {
+            // Caller asked to begin at a specific chapter (e.g. tapping a chapter
+            // row); jump there instead of restoring the saved position.
+            seek(to: book.chapters[startChapterIndex].startTime, persist: true)
+        } else {
+            let saved = await library.progressStore.progress(for: book.id)
+            if saved.position > 0, saved.position < book.duration - 1 {
+                seek(to: saved.position, persist: false)
+            }
         }
         isReady = true
+        if autoPlay { play() }
     }
 
     /// Builds a single `AVPlayerItem` that plays every file in the book back-to-back,

@@ -7,8 +7,9 @@ struct ChapterListView: View {
     let book: Audiobook
     let progress: PlaybackProgress
     @StateObject private var settings = SettingsStore.shared
-    /// If non-nil, tapping a chapter calls this closure (used from the player sheet).
-    /// If nil, tapping pushes a `PlayerView` starting at that chapter.
+    /// If non-nil, tapping a chapter calls this closure with its index. Used both
+    /// from the book detail page (to open the player at that chapter and play) and
+    /// from the player sheet (to jump the current player to that chapter).
     let onSelect: ((Int) -> Void)?
 
     var body: some View {

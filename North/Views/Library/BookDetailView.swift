@@ -238,7 +238,9 @@ struct BookDetailView: View {
 
             ChapterListView(book: book,
                             progress: library.progress(for: book),
-                            onSelect: nil)
+                            onSelect: { index in
+                                library.openPlayer(for: book, startingAtChapter: index, autoPlay: true)
+                            })
                 .padding(.horizontal)
         }
         .padding(.top, 4)
