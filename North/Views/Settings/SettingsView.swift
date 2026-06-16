@@ -83,7 +83,7 @@ struct SettingsView: View {
                     HStack { Text("Version"); Spacer(); Text(Bundle.main.shortVersion).foregroundStyle(.secondary) }
                     Link("LibriVox", destination: URL(string: "https://librivox.org")!)
                     Link("Internet Archive", destination: URL(string: "https://archive.org")!)
-                    Text("Buk respects your privacy. Books and progress are stored on this device.")
+                    Text("North respects your privacy. Books and progress are stored on this device.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }

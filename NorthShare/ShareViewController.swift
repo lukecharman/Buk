@@ -1,7 +1,7 @@
 import UIKit
 import UniformTypeIdentifiers
 
-/// Principal class for the "Add to Buk" Share extension.
+/// Principal class for the "North" Share extension.
 ///
 /// Copies the shared audio (a folder of tracks, or one or more loose audio files)
 /// into the App Group inbox, records a suggested title, then opens the host app so
@@ -12,7 +12,7 @@ final class ShareViewController: UIViewController {
         view.backgroundColor = .clear
 
         let label = UILabel()
-        label.text = "Adding to Buk…"
+        label.text = "Adding to North…"
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(label)
@@ -133,7 +133,7 @@ final class ShareViewController: UIViewController {
     /// Opens the host app via its custom URL scheme by walking the responder chain,
     /// the only supported way for a Share extension to launch its container app.
     private func openHostApp() {
-        guard let url = URL(string: "buk://import") else { return }
+        guard let url = URL(string: "north://import") else { return }
         let selector = sel_registerName("openURL:")
         var responder: UIResponder? = self
         while let current = responder {

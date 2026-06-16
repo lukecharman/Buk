@@ -1,5 +1,5 @@
 import XCTest
-@testable import Buk
+@testable import North
 
 final class AudiobookTests: XCTestCase {
     func testChapterEndTime() {

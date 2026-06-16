@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 @main
-struct BukApp: App {
+struct NorthApp: App {
     @StateObject private var library = LibraryViewModel()
     @StateObject private var settings = SettingsStore.shared
     @Environment(\.scenePhase) private var scenePhase
@@ -34,7 +34,7 @@ struct BukApp: App {
                 .tint(settings.accent)
                 .fontDesign(.serif)
                 .onOpenURL { url in
-                    if url.scheme == "buk" {
+                    if url.scheme == "north" {
                         Task { await library.importPendingShares() }
                     } else {
                         Task { await library.importBook(from: url) }

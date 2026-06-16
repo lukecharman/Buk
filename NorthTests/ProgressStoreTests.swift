@@ -1,5 +1,5 @@
 import XCTest
-@testable import Buk
+@testable import North
 
 final class ProgressStoreTests: XCTestCase {
     private var tempURL: URL!

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The app's four destinations. Declared at file scope so the custom tab bar and
 /// the root container can share it.
-enum BukTab: Hashable {
+enum NorthTab: Hashable {
     case library, discover, settings, player
 }
 
@@ -11,7 +11,7 @@ enum BukTab: Hashable {
 /// destinations live in one capsule; the player pill sits separately to the
 /// right, growing a play/pause button to its left while a book is loaded.
 struct CustomTabBar: View {
-    @Binding var selection: BukTab
+    @Binding var selection: NorthTab
     @ObservedObject var library: LibraryViewModel
     @StateObject private var settings = SettingsStore.shared
 
@@ -65,7 +65,7 @@ struct CustomTabBar: View {
         .cassetteGlass(cornerRadius: 28)
     }
 
-    private func tabButton(_ tab: BukTab, systemImage: String, label: String) -> some View {
+    private func tabButton(_ tab: NorthTab, systemImage: String, label: String) -> some View {
         Button {
             selection = tab
         } label: {

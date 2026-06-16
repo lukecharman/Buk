@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var library: LibraryViewModel
-    @State private var selection: BukTab = .library
+    @State private var selection: NorthTab = .library
 
     var body: some View {
         ZStack {
@@ -31,7 +31,7 @@ struct ContentView: View {
     /// Keeps every destination alive (preserving scroll/search state and avoiding
     /// reloads) while only the selected one is visible and interactive.
     @ViewBuilder
-    private func tab<Content: View>(_ tab: BukTab, @ViewBuilder content: () -> Content) -> some View {
+    private func tab<Content: View>(_ tab: NorthTab, @ViewBuilder content: () -> Content) -> some View {
         content()
             .opacity(selection == tab ? 1 : 0)
             .allowsHitTesting(selection == tab)

@@ -3,7 +3,7 @@ import Foundation
 /// Hand-off point between the Share extension and the main app.
 ///
 /// The Share extension copies shared audio files into a per-share directory inside
-/// the App Group container's `Inbox/` folder, optionally writing a `.buktitle`
+/// the App Group container's `Inbox/` folder, optionally writing a `.northtitle`
 /// sidecar with the audiobook title. The main app drains the inbox on launch /
 /// activation, turning each pending directory into an `Audiobook`.
 ///
@@ -12,14 +12,14 @@ import Foundation
 enum SharedInbox {
     /// Must match the `com.apple.security.application-groups` entitlement in both
     /// the app and the Share extension.
-    static let appGroupID = "group.com.lukecharman.Buk"
+    static let appGroupID = "group.com.lukecharman.North"
 
     /// File extensions treated as importable audio across the app and extension.
     static let audioExtensions: Set<String> = [
         "mp3", "m4a", "m4b", "aac", "wav", "aif", "aiff", "caf", "flac"
     ]
 
-    private static let titleFileName = ".buktitle"
+    private static let titleFileName = ".northtitle"
 
     nonisolated static var containerURL: URL? {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)

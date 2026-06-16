@@ -1,13 +1,13 @@
 //
-//  BukUITests.swift
-//  BukUITests
+//  NorthUITests.swift
+//  NorthUITests
 //
 //  Created by Luke Charman on 03/08/2025.
 //
 
 import XCTest
 
-final class BukUITests: XCTestCase {
+final class NorthUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

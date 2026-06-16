@@ -5,7 +5,14 @@ enum LibraryPaths {
     /// Root folder for everything the app stores on disk for itself.
     static let root: URL = {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = base.appendingPathComponent("Buk", isDirectory: true)
+        let dir = base.appendingPathComponent("North", isDirectory: true)
+        // Migrate libraries created under the previous "Buk" name so existing
+        // books and progress survive the rename.
+        let legacy = base.appendingPathComponent("Buk", isDirectory: true)
+        if FileManager.default.fileExists(atPath: legacy.path),
+           !FileManager.default.fileExists(atPath: dir.path) {
+            try? FileManager.default.moveItem(at: legacy, to: dir)
+        }
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }()

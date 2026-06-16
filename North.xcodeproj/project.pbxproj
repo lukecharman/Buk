@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0EFF65FD092ABD07AD0A9100 /* BukShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 372545F4262A86137C1D260E /* BukShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0EFF65FD092ABD07AD0A9100 /* NorthShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 372545F4262A86137C1D260E /* NorthShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		188951C433A2C66A73785F47 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C056AA7902B28E02DB25EE /* ShareViewController.swift */; };
 		4BA7551F115ED02C72CC0D47 /* SharedInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3328736AD4830C1212EBD6E5 /* SharedInbox.swift */; };
 		5618B86F500FC211C42A7590 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1E884731AF6463DD4260783 /* Foundation.framework */; };
@@ -19,21 +19,21 @@
 			containerPortal = A30E2BDD2E3FEE4900A3DA0F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AB5CA8C9BE2AE3ADCC351C02;
-			remoteInfo = BukShare;
+			remoteInfo = NorthShare;
 		};
 		A30E2BF32E3FEE4A00A3DA0F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A30E2BDD2E3FEE4900A3DA0F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A30E2BE42E3FEE4900A3DA0F;
-			remoteInfo = Buk;
+			remoteInfo = North;
 		};
 		A30E2BFD2E3FEE4A00A3DA0F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A30E2BDD2E3FEE4900A3DA0F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A30E2BE42E3FEE4900A3DA0F;
-			remoteInfo = Buk;
+			remoteInfo = North;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -44,7 +44,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				0EFF65FD092ABD07AD0A9100 /* BukShare.appex in Embed Foundation Extensions */,
+				0EFF65FD092ABD07AD0A9100 /* NorthShare.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -52,46 +52,46 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3328736AD4830C1212EBD6E5 /* SharedInbox.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedInbox.swift; path = Buk/Services/SharedInbox.swift; sourceTree = "<group>"; };
-		372545F4262A86137C1D260E /* BukShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BukShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3328736AD4830C1212EBD6E5 /* SharedInbox.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedInbox.swift; path = North/Services/SharedInbox.swift; sourceTree = "<group>"; };
+		372545F4262A86137C1D260E /* NorthShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NorthShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		61C056AA7902B28E02DB25EE /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		A1E884731AF6463DD4260783 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		A30E2BE52E3FEE4900A3DA0F /* Buk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Buk.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A30E2BF22E3FEE4A00A3DA0F /* BukTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BukTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A30E2BFC2E3FEE4A00A3DA0F /* BukUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BukUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30E2BE52E3FEE4900A3DA0F /* North.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = North.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30E2BF22E3FEE4A00A3DA0F /* NorthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NorthTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30E2BFC2E3FEE4A00A3DA0F /* NorthUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NorthUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A30E2C9012345678ABCDEF01 /* Exceptions for "Buk" folder in "Buk" target */ = {
+		A30E2C9012345678ABCDEF01 /* Exceptions for "North" folder in "North" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = A30E2BE42E3FEE4900A3DA0F /* Buk */;
+			target = A30E2BE42E3FEE4900A3DA0F /* North */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A30E2BE72E3FEE4900A3DA0F /* Buk */ = {
+		A30E2BE72E3FEE4900A3DA0F /* North */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A30E2C9012345678ABCDEF01 /* Exceptions for "Buk" folder in "Buk" target */,
+				A30E2C9012345678ABCDEF01 /* Exceptions for "North" folder in "North" target */,
 			);
-			path = Buk;
+			path = North;
 			sourceTree = "<group>";
 		};
-		A30E2BF52E3FEE4A00A3DA0F /* BukTests */ = {
+		A30E2BF52E3FEE4A00A3DA0F /* NorthTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 			);
-			path = BukTests;
+			path = NorthTests;
 			sourceTree = "<group>";
 		};
-		A30E2BFF2E3FEE4A00A3DA0F /* BukUITests */ = {
+		A30E2BFF2E3FEE4A00A3DA0F /* NorthUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 			);
-			path = BukUITests;
+			path = NorthUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -137,13 +137,13 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		881AC9A4D98A731C51577A1C /* BukShare */ = {
+		881AC9A4D98A731C51577A1C /* NorthShare */ = {
 			isa = PBXGroup;
 			children = (
 				61C056AA7902B28E02DB25EE /* ShareViewController.swift */,
 			);
-			name = BukShare;
-			path = BukShare;
+			name = NorthShare;
+			path = NorthShare;
 			sourceTree = "<group>";
 		};
 		9D071687FFA7D0A846D111C3 /* Frameworks */ = {
@@ -157,12 +157,12 @@
 		A30E2BDC2E3FEE4900A3DA0F = {
 			isa = PBXGroup;
 			children = (
-				A30E2BE72E3FEE4900A3DA0F /* Buk */,
-				A30E2BF52E3FEE4A00A3DA0F /* BukTests */,
-				A30E2BFF2E3FEE4A00A3DA0F /* BukUITests */,
+				A30E2BE72E3FEE4900A3DA0F /* North */,
+				A30E2BF52E3FEE4A00A3DA0F /* NorthTests */,
+				A30E2BFF2E3FEE4A00A3DA0F /* NorthUITests */,
 				A30E2BE62E3FEE4900A3DA0F /* Products */,
 				9D071687FFA7D0A846D111C3 /* Frameworks */,
-				881AC9A4D98A731C51577A1C /* BukShare */,
+				881AC9A4D98A731C51577A1C /* NorthShare */,
 				3328736AD4830C1212EBD6E5 /* SharedInbox.swift */,
 			);
 			sourceTree = "<group>";
@@ -170,10 +170,10 @@
 		A30E2BE62E3FEE4900A3DA0F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A30E2BE52E3FEE4900A3DA0F /* Buk.app */,
-				A30E2BF22E3FEE4A00A3DA0F /* BukTests.xctest */,
-				A30E2BFC2E3FEE4A00A3DA0F /* BukUITests.xctest */,
-				372545F4262A86137C1D260E /* BukShare.appex */,
+				A30E2BE52E3FEE4900A3DA0F /* North.app */,
+				A30E2BF22E3FEE4A00A3DA0F /* NorthTests.xctest */,
+				A30E2BFC2E3FEE4A00A3DA0F /* NorthUITests.xctest */,
+				372545F4262A86137C1D260E /* NorthShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,9 +181,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A30E2BE42E3FEE4900A3DA0F /* Buk */ = {
+		A30E2BE42E3FEE4900A3DA0F /* North */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A30E2C062E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "Buk" */;
+			buildConfigurationList = A30E2C062E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "North" */;
 			buildPhases = (
 				A30E2BE12E3FEE4900A3DA0F /* Sources */,
 				A30E2BE22E3FEE4900A3DA0F /* Frameworks */,
@@ -196,16 +196,16 @@
 				933AF87015B17C1C76205DCE /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A30E2BE72E3FEE4900A3DA0F /* Buk */,
+				A30E2BE72E3FEE4900A3DA0F /* North */,
 			);
-			name = Buk;
-			productName = Buk;
-			productReference = A30E2BE52E3FEE4900A3DA0F /* Buk.app */;
+			name = North;
+			productName = North;
+			productReference = A30E2BE52E3FEE4900A3DA0F /* North.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A30E2BF12E3FEE4A00A3DA0F /* BukTests */ = {
+		A30E2BF12E3FEE4A00A3DA0F /* NorthTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A30E2C092E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "BukTests" */;
+			buildConfigurationList = A30E2C092E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "NorthTests" */;
 			buildPhases = (
 				A30E2BEE2E3FEE4A00A3DA0F /* Sources */,
 				A30E2BEF2E3FEE4A00A3DA0F /* Frameworks */,
@@ -217,16 +217,16 @@
 				A30E2BF42E3FEE4A00A3DA0F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A30E2BF52E3FEE4A00A3DA0F /* BukTests */,
+				A30E2BF52E3FEE4A00A3DA0F /* NorthTests */,
 			);
-			name = BukTests;
-			productName = BukTests;
-			productReference = A30E2BF22E3FEE4A00A3DA0F /* BukTests.xctest */;
+			name = NorthTests;
+			productName = NorthTests;
+			productReference = A30E2BF22E3FEE4A00A3DA0F /* NorthTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		A30E2BFB2E3FEE4A00A3DA0F /* BukUITests */ = {
+		A30E2BFB2E3FEE4A00A3DA0F /* NorthUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A30E2C0C2E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "BukUITests" */;
+			buildConfigurationList = A30E2C0C2E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "NorthUITests" */;
 			buildPhases = (
 				A30E2BF82E3FEE4A00A3DA0F /* Sources */,
 				A30E2BF92E3FEE4A00A3DA0F /* Frameworks */,
@@ -238,16 +238,16 @@
 				A30E2BFE2E3FEE4A00A3DA0F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A30E2BFF2E3FEE4A00A3DA0F /* BukUITests */,
+				A30E2BFF2E3FEE4A00A3DA0F /* NorthUITests */,
 			);
-			name = BukUITests;
-			productName = BukUITests;
-			productReference = A30E2BFC2E3FEE4A00A3DA0F /* BukUITests.xctest */;
+			name = NorthUITests;
+			productName = NorthUITests;
+			productReference = A30E2BFC2E3FEE4A00A3DA0F /* NorthUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		AB5CA8C9BE2AE3ADCC351C02 /* BukShare */ = {
+		AB5CA8C9BE2AE3ADCC351C02 /* NorthShare */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E997758934180D665AD7C0DF /* Build configuration list for PBXNativeTarget "BukShare" */;
+			buildConfigurationList = E997758934180D665AD7C0DF /* Build configuration list for PBXNativeTarget "NorthShare" */;
 			buildPhases = (
 				9F1ECDFBD099AA0CB460DECD /* Sources */,
 				7D094223244B53D8DE4CD7AC /* Frameworks */,
@@ -257,9 +257,9 @@
 			);
 			dependencies = (
 			);
-			name = BukShare;
-			productName = BukShare;
-			productReference = 372545F4262A86137C1D260E /* BukShare.appex */;
+			name = NorthShare;
+			productName = NorthShare;
+			productReference = 372545F4262A86137C1D260E /* NorthShare.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -285,7 +285,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A30E2BE02E3FEE4900A3DA0F /* Build configuration list for PBXProject "Buk" */;
+			buildConfigurationList = A30E2BE02E3FEE4900A3DA0F /* Build configuration list for PBXProject "North" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -299,10 +299,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A30E2BE42E3FEE4900A3DA0F /* Buk */,
-				A30E2BF12E3FEE4A00A3DA0F /* BukTests */,
-				A30E2BFB2E3FEE4A00A3DA0F /* BukUITests */,
-				AB5CA8C9BE2AE3ADCC351C02 /* BukShare */,
+				A30E2BE42E3FEE4900A3DA0F /* North */,
+				A30E2BF12E3FEE4A00A3DA0F /* NorthTests */,
+				A30E2BFB2E3FEE4A00A3DA0F /* NorthUITests */,
+				AB5CA8C9BE2AE3ADCC351C02 /* NorthShare */,
 			);
 		};
 /* End PBXProject section */
@@ -374,18 +374,18 @@
 /* Begin PBXTargetDependency section */
 		933AF87015B17C1C76205DCE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = BukShare;
-			target = AB5CA8C9BE2AE3ADCC351C02 /* BukShare */;
+			name = NorthShare;
+			target = AB5CA8C9BE2AE3ADCC351C02 /* NorthShare */;
 			targetProxy = 7C1C6F49A68582E882DAA244 /* PBXContainerItemProxy */;
 		};
 		A30E2BF42E3FEE4A00A3DA0F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A30E2BE42E3FEE4900A3DA0F /* Buk */;
+			target = A30E2BE42E3FEE4900A3DA0F /* North */;
 			targetProxy = A30E2BF32E3FEE4A00A3DA0F /* PBXContainerItemProxy */;
 		};
 		A30E2BFE2E3FEE4A00A3DA0F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A30E2BE42E3FEE4900A3DA0F /* Buk */;
+			target = A30E2BE42E3FEE4900A3DA0F /* North */;
 			targetProxy = A30E2BFD2E3FEE4A00A3DA0F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -395,20 +395,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = BukShare/BukShare.entitlements;
+				CODE_SIGN_ENTITLEMENTS = NorthShare/NorthShare.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 82DGSFCWSX;
 				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BukShare/Info.plist;
+				INFOPLIST_FILE = NorthShare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.Buk.Share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.North.Share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
@@ -543,7 +543,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Buk.entitlements;
+				CODE_SIGN_ENTITLEMENTS = North.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 82DGSFCWSX;
@@ -552,7 +552,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Buk/Info.plist;
+				INFOPLIST_FILE = North/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -569,7 +569,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.Buk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.North;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -590,7 +590,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Buk.entitlements;
+				CODE_SIGN_ENTITLEMENTS = North.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 82DGSFCWSX;
@@ -599,7 +599,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Buk/Info.plist;
+				INFOPLIST_FILE = North/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -616,7 +616,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.Buk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.North;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -643,7 +643,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.BukTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.NorthTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -653,7 +653,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Buk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Buk";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/North.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/North";
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
@@ -669,7 +669,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.BukTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.NorthTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -679,7 +679,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Buk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Buk";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/North.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/North";
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
@@ -694,7 +694,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.BukUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.NorthUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -704,7 +704,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = Buk;
+				TEST_TARGET_NAME = North;
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
@@ -719,7 +719,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.BukUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.NorthUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -729,7 +729,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = Buk;
+				TEST_TARGET_NAME = North;
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
@@ -738,20 +738,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = BukShare/BukShare.entitlements;
+				CODE_SIGN_ENTITLEMENTS = NorthShare/NorthShare.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 82DGSFCWSX;
 				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BukShare/Info.plist;
+				INFOPLIST_FILE = NorthShare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.Buk.Share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukecharman.North.Share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
@@ -767,7 +767,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A30E2BE02E3FEE4900A3DA0F /* Build configuration list for PBXProject "Buk" */ = {
+		A30E2BE02E3FEE4900A3DA0F /* Build configuration list for PBXProject "North" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A30E2C042E3FEE4A00A3DA0F /* Debug */,
@@ -776,7 +776,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A30E2C062E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "Buk" */ = {
+		A30E2C062E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "North" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A30E2C072E3FEE4A00A3DA0F /* Debug */,
@@ -785,7 +785,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A30E2C092E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "BukTests" */ = {
+		A30E2C092E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "NorthTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A30E2C0A2E3FEE4A00A3DA0F /* Debug */,
@@ -794,7 +794,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A30E2C0C2E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "BukUITests" */ = {
+		A30E2C0C2E3FEE4A00A3DA0F /* Build configuration list for PBXNativeTarget "NorthUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A30E2C0D2E3FEE4A00A3DA0F /* Debug */,
@@ -803,7 +803,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E997758934180D665AD7C0DF /* Build configuration list for PBXNativeTarget "BukShare" */ = {
+		E997758934180D665AD7C0DF /* Build configuration list for PBXNativeTarget "NorthShare" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C5AEEBBCC896FBB1CFCFEC2 /* Release */,

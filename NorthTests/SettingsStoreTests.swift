@@ -1,5 +1,5 @@
 import XCTest
-@testable import Buk
+@testable import North
 
 @MainActor
 final class SettingsStoreTests: XCTestCase {

@@ -1,13 +1,13 @@
 //
-//  BukUITestsLaunchTests.swift
-//  BukUITests
+//  NorthUITestsLaunchTests.swift
+//  NorthUITests
 //
 //  Created by Luke Charman on 03/08/2025.
 //
 
 import XCTest
 
-final class BukUITestsLaunchTests: XCTestCase {
+final class NorthUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
