@@ -46,4 +46,28 @@ final class ProgressStoreTests: XCTestCase {
         let restored = await ProgressStore(fileURL: tempURL).progress(for: id)
         XCTAssertEqual(restored.position, 0, accuracy: 0.001)
     }
+
+    func testPersistsChapterSets() async {
+        let store = ProgressStore(fileURL: tempURL)
+        let id = UUID()
+        let value = PlaybackProgress(bookID: id, position: 60, chapterIndex: 3, updatedAt: Date(),
+                                     isFinished: false, completedChapters: [0, 2], startedChapters: [3])
+        await store.update(value)
+
+        let restored = await ProgressStore(fileURL: tempURL).progress(for: id)
+        XCTAssertEqual(restored.completedChapters, [0, 2])
+        XCTAssertEqual(restored.startedChapters, [3])
+    }
+
+    func testDecodesLegacyProgressWithoutChapterSets() throws {
+        // Progress saved before per-chapter tracking has no completed/started keys.
+        let legacy = """
+        {"bookID":"\(UUID().uuidString)","position":12.5,"chapterIndex":1,\
+        "updatedAt":0,"isFinished":false}
+        """
+        let decoded = try JSONDecoder().decode(PlaybackProgress.self, from: Data(legacy.utf8))
+        XCTAssertEqual(decoded.position, 12.5, accuracy: 0.001)
+        XCTAssertTrue(decoded.completedChapters.isEmpty)
+        XCTAssertTrue(decoded.startedChapters.isEmpty)
+    }
 }

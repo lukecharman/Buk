@@ -58,15 +58,24 @@ struct ChapterListView: View {
 
     @ViewBuilder
     private func trailingIcon(for index: Int, chapter: Audiobook.Chapter) -> some View {
-        if progress.position >= chapter.endTime - 0.5 {
+        if isCompleted(index) {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(CassettePalette.lcdGreen)
         } else if index == progress.chapterIndex {
             Image(systemName: "speaker.wave.2.fill")
                 .foregroundStyle(settings.accentStyle)
+        } else if progress.startedChapters.contains(index) {
+            Image(systemName: "circle.lefthalf.filled")
+                .foregroundStyle(settings.accentStyle)
         } else {
             Image(systemName: "chevron.right").foregroundStyle(.tertiary)
         }
+    }
+
+    /// A chapter counts as completed when it's in the recorded completed set, or the
+    /// whole book is finished (which retroactively implies every chapter is done).
+    private func isCompleted(_ index: Int) -> Bool {
+        progress.isFinished || progress.completedChapters.contains(index)
     }
 
     private func currentBackground(for index: Int) -> Color {

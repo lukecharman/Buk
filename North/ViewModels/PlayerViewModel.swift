@@ -41,6 +41,15 @@ final class PlayerViewModel: ObservableObject {
     private var sleepTimerTask: Task<Void, Never>?
     private var lastPersistedSecond: Int = -1
 
+    /// Chapters the user has played through to the end, in any order.
+    private var completedChapters: Set<Int> = []
+    /// Chapters the user has begun but not finished.
+    private var startedChapters: Set<Int> = []
+    /// Absolute position seen on the previous time-observer tick, used to detect
+    /// chapter boundaries that were crossed by *continuous playback* (as opposed to
+    /// a seek/jump) so only genuinely-listened chapters get marked complete.
+    private var lastTickTime: TimeInterval?
+
     /// When set, playback starts at this chapter instead of the saved position.
     private let startChapterIndex: Int?
     /// When true, playback begins automatically once the player is ready.
@@ -110,6 +119,7 @@ final class PlayerViewModel: ObservableObject {
             Task { @MainActor in
                 guard let self else { return }
                 guard seconds.isFinite else { return }
+                self.detectPlayedThroughChapters(upTo: seconds)
                 self.elapsedTime = seconds
                 self.updateChapter(for: seconds)
                 self.nowPlaying.updateProgress(elapsed: seconds, rate: self.isPlaying ? self.playbackRate : 0)
@@ -146,15 +156,18 @@ final class PlayerViewModel: ObservableObject {
     }
 
     private func restoreProgress() async {
+        // Seed the per-chapter tracking from any saved progress so previously
+        // completed/started chapters survive across sessions.
+        let saved = await library.progressStore.progress(for: book.id)
+        completedChapters = saved.completedChapters
+        startedChapters = saved.startedChapters
+
         if let startChapterIndex, book.chapters.indices.contains(startChapterIndex) {
             // Caller asked to begin at a specific chapter (e.g. tapping a chapter
             // row); jump there instead of restoring the saved position.
             seek(to: book.chapters[startChapterIndex].startTime, persist: true)
-        } else {
-            let saved = await library.progressStore.progress(for: book.id)
-            if saved.position > 0, saved.position < book.duration - 1 {
-                seek(to: saved.position, persist: false)
-            }
+        } else if saved.position > 0, saved.position < book.duration - 1 {
+            seek(to: saved.position, persist: false)
         }
         isReady = true
         if autoPlay { play() }
@@ -256,6 +269,9 @@ final class PlayerViewModel: ObservableObject {
     /// Seeks within the entire book.
     func seek(to time: TimeInterval, persist: Bool = true) {
         let clamped = max(0, min(time, book.duration))
+        // A seek breaks the continuous-playback chain, so the next observer tick
+        // must not treat the gap it jumped over as "played through".
+        lastTickTime = nil
         let cm = CMTime(seconds: clamped, preferredTimescale: 600)
         player.seek(to: cm, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
             Task { @MainActor [weak self] in
@@ -331,10 +347,44 @@ final class PlayerViewModel: ObservableObject {
 
     private func updateChapter(for time: TimeInterval) {
         let new = book.chapterIndex(containing: time)
+        // Being positioned in a chapter counts as having started it (unless it's
+        // already finished), so it shows an "in-progress" state.
+        markChapterStarted(new)
         if new != currentChapterIndex {
             currentChapterIndex = new
             nowPlaying.currentChapterIndex = new
         }
+    }
+
+    /// Marks every chapter whose end was crossed by continuous playback between the
+    /// previous tick and `now` as completed. Large gaps (seeks/jumps) are ignored so
+    /// skipping ahead never marks the skipped chapters as listened.
+    private func detectPlayedThroughChapters(upTo now: TimeInterval) {
+        defer { lastTickTime = now }
+        guard isPlaying, let previous = lastTickTime else { return }
+        let delta = now - previous
+        // A normal tick advances ~0.5s × rate; anything larger is a discontinuity.
+        guard delta > 0, delta < 5 else { return }
+        var completedSomething = false
+        for (index, chapter) in book.chapters.enumerated()
+        where chapter.endTime > previous && chapter.endTime <= now {
+            if completedChapters.insert(index).inserted {
+                startedChapters.remove(index)
+                completedSomething = true
+            }
+        }
+        if completedSomething { persistProgress(force: true) }
+    }
+
+    private func markChapterStarted(_ index: Int) {
+        guard book.chapters.indices.contains(index), !completedChapters.contains(index) else { return }
+        startedChapters.insert(index)
+    }
+
+    private func markChapterCompleted(_ index: Int) {
+        guard book.chapters.indices.contains(index) else { return }
+        completedChapters.insert(index)
+        startedChapters.remove(index)
     }
 
     private func persistProgressIfNeeded() {
@@ -353,12 +403,15 @@ final class PlayerViewModel: ObservableObject {
             position: elapsedTime,
             chapterIndex: currentChapterIndex,
             updatedAt: Date(),
-            isFinished: false
+            isFinished: false,
+            completedChapters: completedChapters,
+            startedChapters: startedChapters
         )
         Task { await library.updateProgress(value) }
     }
 
     private func handlePlaybackFinished() {
+        markChapterCompleted(currentChapterIndex)
         if settings.autoPlayNextChapter, currentChapterIndex < book.chapters.count - 1 {
             nextChapter()
             play()
@@ -370,7 +423,9 @@ final class PlayerViewModel: ObservableObject {
             position: book.duration,
             chapterIndex: max(0, book.chapters.count - 1),
             updatedAt: Date(),
-            isFinished: true
+            isFinished: true,
+            completedChapters: completedChapters,
+            startedChapters: startedChapters
         )
         Task { await library.updateProgress(value) }
     }
