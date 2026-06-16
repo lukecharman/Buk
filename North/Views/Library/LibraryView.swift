@@ -170,7 +170,7 @@ private struct EmptyLibraryView: View {
                 .foregroundStyle(.secondary)
             Text("Your shelf is empty")
                 .font(CassetteFont.label(22))
-            Text("Import .m4b audiobooks from Files, or browse Discover for free public-domain titles.")
+            Text("Import .m4b, .mp3, .m4a files or a folder of them from Files, or browse Discover for free public-domain titles.")
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
