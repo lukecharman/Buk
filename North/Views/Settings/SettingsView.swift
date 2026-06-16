@@ -50,30 +50,9 @@ struct SettingsView: View {
                 Section("Appearance") {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Tint")
-                        HStack(spacing: 12) {
-                            ForEach(AppTint.allCases) { tint in
-                                Button {
-                                    settings.appTint = tint
-                                } label: {
-                                    Circle()
-                                        .fill(tint.color)
-                                        .frame(width: 30, height: 30)
-                                        .overlay {
-                                            Circle()
-                                                .strokeBorder(.primary, lineWidth: settings.appTint == tint ? 2.5 : 0)
-                                        }
-                                        .overlay {
-                                            if settings.appTint == tint {
-                                                Image(systemName: "checkmark")
-                                                    .font(.caption2.weight(.bold))
-                                                    .foregroundStyle(.white)
-                                            }
-                                        }
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(tint.displayName)
-                                .accessibilityAddTraits(settings.appTint == tint ? [.isSelected] : [])
-                            }
+                        VStack(spacing: 12) {
+                            tintRow(AppTint.solids)
+                            tintRow(AppTint.gradients)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -96,6 +75,34 @@ struct SettingsView: View {
 
     private func rateLabel(_ rate: Double) -> String {
         rate == floor(rate) ? String(format: "%.0f×", rate) : String(format: "%.2f×", rate)
+    }
+
+    private func tintRow(_ tints: [AppTint]) -> some View {
+        HStack(spacing: 12) {
+            ForEach(tints) { tint in
+                Button {
+                    settings.appTint = tint
+                } label: {
+                    Circle()
+                        .fill(tint.style)
+                        .frame(width: 30, height: 30)
+                        .overlay {
+                            Circle()
+                                .strokeBorder(.primary, lineWidth: settings.appTint == tint ? 2.5 : 0)
+                        }
+                        .overlay {
+                            if settings.appTint == tint {
+                                Image(systemName: "checkmark")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(tint.displayName)
+                .accessibilityAddTraits(settings.appTint == tint ? [.isSelected] : [])
+            }
+        }
     }
 }
 

@@ -32,11 +32,27 @@ enum CassettePalette {
 
 /// The user-selectable accent tint applied across the app. Defaults to the
 /// classic record-light red so the cassette aesthetic is preserved.
+///
+/// The first eight cases are flat colours; the final eight are gradients. A tint
+/// always exposes a representative solid `color` (used for the global system tint,
+/// opacity-based fills and badges) and, for gradient tints, a `gradient`. The
+/// `style` property returns the gradient when present, otherwise the flat colour,
+/// so prominent fills can show gradients uniformly.
 enum AppTint: String, CaseIterable, Identifiable {
+    // Flat colours.
     case red, orange, amber, green, teal, blue, plum, magenta
+    // Gradients.
+    case sunset, lagoon, meadow, candy, mango, grape, aurora, ember
 
     var id: String { rawValue }
 
+    /// All flat-colour tints, in display order.
+    static var solids: [AppTint] { allCases.filter { $0.gradient == nil } }
+    /// All gradient tints, in display order.
+    static var gradients: [AppTint] { allCases.filter { $0.gradient != nil } }
+
+    /// Representative solid colour. For gradient tints this is the gradient's
+    /// dominant (leading) colour.
     var color: Color {
         switch self {
         case .red:     return Color(red: 0.85, green: 0.18, blue: 0.18)
@@ -47,6 +63,52 @@ enum AppTint: String, CaseIterable, Identifiable {
         case .blue:    return Color(red: 0.16, green: 0.40, blue: 0.72)
         case .plum:    return Color(red: 0.45, green: 0.27, blue: 0.60)
         case .magenta: return Color(red: 0.78, green: 0.24, blue: 0.48)
+        case .sunset:  return Color(red: 0.92, green: 0.36, blue: 0.30)
+        case .lagoon:  return Color(red: 0.16, green: 0.46, blue: 0.74)
+        case .meadow:  return Color(red: 0.22, green: 0.56, blue: 0.34)
+        case .candy:   return Color(red: 0.86, green: 0.30, blue: 0.56)
+        case .mango:   return Color(red: 0.94, green: 0.55, blue: 0.18)
+        case .grape:   return Color(red: 0.46, green: 0.28, blue: 0.66)
+        case .aurora:  return Color(red: 0.16, green: 0.56, blue: 0.56)
+        case .ember:   return Color(red: 0.80, green: 0.22, blue: 0.24)
+        }
+    }
+
+    /// The gradient for gradient tints; `nil` for flat-colour tints.
+    var gradient: LinearGradient? {
+        guard let pair = gradientColors else { return nil }
+        return LinearGradient(colors: [pair.0, pair.1],
+                              startPoint: .topLeading,
+                              endPoint: .bottomTrailing)
+    }
+
+    /// A `ShapeStyle` for prominent fills: the gradient when present, else the
+    /// flat colour. Wrapped in `AnyShapeStyle` so call sites stay uniform.
+    var style: AnyShapeStyle {
+        if let gradient { return AnyShapeStyle(gradient) }
+        return AnyShapeStyle(color)
+    }
+
+    /// Start/end colours backing each gradient tint.
+    private var gradientColors: (Color, Color)? {
+        switch self {
+        case .sunset:  return (Color(red: 0.97, green: 0.55, blue: 0.20),
+                               Color(red: 0.86, green: 0.18, blue: 0.40))
+        case .lagoon:  return (Color(red: 0.20, green: 0.58, blue: 0.86),
+                               Color(red: 0.10, green: 0.32, blue: 0.62))
+        case .meadow:  return (Color(red: 0.42, green: 0.72, blue: 0.34),
+                               Color(red: 0.10, green: 0.44, blue: 0.40))
+        case .candy:   return (Color(red: 0.96, green: 0.45, blue: 0.66),
+                               Color(red: 0.56, green: 0.24, blue: 0.72))
+        case .mango:   return (Color(red: 0.98, green: 0.74, blue: 0.20),
+                               Color(red: 0.90, green: 0.36, blue: 0.18))
+        case .grape:   return (Color(red: 0.56, green: 0.36, blue: 0.80),
+                               Color(red: 0.26, green: 0.20, blue: 0.56))
+        case .aurora:  return (Color(red: 0.22, green: 0.70, blue: 0.62),
+                               Color(red: 0.14, green: 0.40, blue: 0.66))
+        case .ember:   return (Color(red: 0.92, green: 0.40, blue: 0.22),
+                               Color(red: 0.66, green: 0.12, blue: 0.22))
+        default:       return nil
         }
     }
 
@@ -60,6 +122,14 @@ enum AppTint: String, CaseIterable, Identifiable {
         case .blue:    return "Ocean"
         case .plum:    return "Plum"
         case .magenta: return "Magenta"
+        case .sunset:  return "Sunset"
+        case .lagoon:  return "Lagoon"
+        case .meadow:  return "Meadow"
+        case .candy:   return "Candy"
+        case .mango:   return "Mango"
+        case .grape:   return "Grape"
+        case .aurora:  return "Aurora"
+        case .ember:   return "Ember"
         }
     }
 }

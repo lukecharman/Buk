@@ -26,6 +26,11 @@ final class SettingsStore: ObservableObject {
     /// Convenience accessor for the chosen tint colour.
     var accent: Color { appTint.color }
 
+    /// The chosen tint as a `ShapeStyle` — a gradient when the tint is a gradient,
+    /// otherwise the flat colour. Use for prominent fills that should show
+    /// gradients (tab bar, scrubber, chapter indicators).
+    var accentStyle: AnyShapeStyle { appTint.style }
+
     private init() {
         let stored = UserDefaults.standard.string(forKey: Self.appTintKey)
         appTint = stored.flatMap(AppTint.init(rawValue:)) ?? .red

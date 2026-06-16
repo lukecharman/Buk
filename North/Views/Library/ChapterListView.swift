@@ -62,7 +62,7 @@ struct ChapterListView: View {
                 .foregroundStyle(CassettePalette.lcdGreen)
         } else if index == progress.chapterIndex {
             Image(systemName: "speaker.wave.2.fill")
-                .foregroundStyle(settings.accent)
+                .foregroundStyle(settings.accentStyle)
         } else {
             Image(systemName: "chevron.right").foregroundStyle(.tertiary)
         }

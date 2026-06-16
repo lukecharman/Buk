@@ -40,7 +40,7 @@ struct CustomTabBar: View {
                 .overlay(alignment: .topTrailing) {
                     if !library.activeDownloads.isEmpty {
                         Circle()
-                            .fill(settings.accent)
+                            .fill(settings.accentStyle)
                             .frame(width: 8, height: 8)
                             .offset(x: 2, y: -2)
                             .accessibilityLabel("Downloads in progress")
@@ -56,7 +56,7 @@ struct CustomTabBar: View {
     private var playerCapsule: some View {
         HStack(spacing: 8) {
             if let player = library.currentPlayer {
-                PlayPauseButton(player: player, accent: settings.accent)
+                PlayPauseButton(player: player, accent: settings.accentStyle)
             }
             tabButton(.player, systemImage: "waveform", label: "Player")
         }
@@ -71,7 +71,7 @@ struct CustomTabBar: View {
         } label: {
             Image(systemName: systemImage)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(selection == tab ? AnyShapeStyle(settings.accent) : AnyShapeStyle(.secondary))
+                .foregroundStyle(selection == tab ? settings.accentStyle : AnyShapeStyle(.secondary))
                 .frame(width: 30, height: 28)
                 .contentShape(Rectangle())
         }
@@ -108,7 +108,7 @@ struct TabBarBackdrop: View {
 /// glyph flips immediately as playback toggles.
 private struct PlayPauseButton: View {
     @ObservedObject var player: PlayerViewModel
-    let accent: Color
+    let accent: AnyShapeStyle
 
     var body: some View {
         Button {

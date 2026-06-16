@@ -20,7 +20,7 @@ struct ScrubberView: View {
                         .fill(CassettePalette.aluminium.opacity(0.35))
                         .frame(height: 6)
                     Capsule()
-                        .fill(settings.accent)
+                        .fill(settings.accentStyle)
                         .frame(width: knobX, height: 6)
                     Circle()
                         .fill(.white)

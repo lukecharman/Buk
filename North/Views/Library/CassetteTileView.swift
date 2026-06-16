@@ -34,9 +34,9 @@ struct CassetteTileView: View {
     @ViewBuilder
     private var progressBadge: some View {
         if progress >= 0.99 {
-            badge("Finished", color: CassettePalette.lcdGreen)
+            badge("Finished", style: AnyShapeStyle(CassettePalette.lcdGreen))
         } else if progress > 0.01 {
-            badge(String(format: "%.0f%%", progress * 100), color: settings.accent)
+            badge(String(format: "%.0f%%", progress * 100), style: settings.accentStyle)
         }
     }
 
@@ -74,12 +74,12 @@ struct CassetteTileView: View {
             .lineLimit(1)
     }
 
-    private func badge(_ text: String, color: Color) -> some View {
+    private func badge(_ text: String, style: AnyShapeStyle) -> some View {
         Text(text)
             .font(CassetteFont.counter(10, weight: .bold))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(color, in: Capsule())
+            .background(style, in: Capsule())
             .foregroundStyle(.white)
             .shadow(radius: 2)
     }
