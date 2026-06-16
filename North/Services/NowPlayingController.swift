@@ -60,30 +60,51 @@ final class NowPlayingController {
 
     // MARK: - Now Playing metadata
 
+    /// The chapter whose timeline the Lock Screen / remote controls are scoped to.
+    /// When a book has chapters we report the *current chapter's* duration and a
+    /// chapter-relative elapsed time, so the OS player shows chapter length (e.g.
+    /// an m4b with embedded chapters) rather than the whole-file length.
+    private var currentChapter: Audiobook.Chapter? {
+        guard let book, book.chapters.indices.contains(currentChapterIndex) else { return nil }
+        return book.chapters[currentChapterIndex]
+    }
+
+    /// Start of the reported timeline (seconds from the start of the book).
+    private var timelineStart: TimeInterval { currentChapter?.startTime ?? 0 }
+
+    /// Duration of the reported timeline: the current chapter's length, falling back
+    /// to the full book duration when there are no chapters.
+    private var timelineDuration: TimeInterval { currentChapter?.duration ?? (book?.duration ?? 0) }
+
     func refreshNowPlayingMetadata() {
         guard let book else { return }
         var info: [String: Any] = [:]
-        info[MPMediaItemPropertyTitle] = book.chapters.indices.contains(currentChapterIndex)
-            ? book.chapters[currentChapterIndex].title
-            : book.title
+        info[MPMediaItemPropertyTitle] = currentChapter?.title ?? book.title
         info[MPMediaItemPropertyAlbumTitle] = book.title
         if let author = book.author { info[MPMediaItemPropertyArtist] = author }
-        info[MPMediaItemPropertyPlaybackDuration] = book.duration
+        info[MPMediaItemPropertyPlaybackDuration] = timelineDuration
         info[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
         info[MPNowPlayingInfoPropertyIsLiveStream] = false
         if let artwork { info[MPMediaItemPropertyArtwork] = artwork }
         if let player {
-            info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+            info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = chapterElapsed(forBookTime: player.currentTime().seconds)
             info[MPNowPlayingInfoPropertyPlaybackRate] = Double(player.rate)
         }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 
+    /// `elapsed` is an absolute book time; we report it relative to the current chapter.
     func updateProgress(elapsed: TimeInterval, rate: Double) {
         var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed
+        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = chapterElapsed(forBookTime: elapsed)
         info[MPNowPlayingInfoPropertyPlaybackRate] = rate
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    /// Clamps an absolute book time into the current chapter's local timeline.
+    private func chapterElapsed(forBookTime time: TimeInterval) -> TimeInterval {
+        guard time.isFinite else { return 0 }
+        return max(0, min(time - timelineStart, timelineDuration))
     }
 
     var currentChapterIndex: Int = 0 {
@@ -141,8 +162,12 @@ final class NowPlayingController {
         cc.changePlaybackPositionCommand.isEnabled = true
         cc.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let event = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
-            let time = event.positionTime
-            Task { @MainActor in self?.onSeek?(time) }
+            // `positionTime` is relative to the reported (chapter) timeline; translate
+            // it back to an absolute book time before seeking.
+            Task { @MainActor in
+                guard let self else { return }
+                self.onSeek?(self.timelineStart + event.positionTime)
+            }
             return .success
         }
         cc.changePlaybackRateCommand.isEnabled = true
