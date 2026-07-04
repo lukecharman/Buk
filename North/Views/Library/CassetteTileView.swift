@@ -26,17 +26,25 @@ struct CassetteTileView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            progressBadge
         }
     }
 
+    /// Progress ring drawn around the circular artwork: starts at the top and
+    /// fills clockwise to the current fraction. Green when finished, accent
+    /// otherwise. Casts a soft shadow down into the artwork.
     @ViewBuilder
-    private var progressBadge: some View {
-        if progress >= 0.99 {
-            badge("Finished", style: AnyShapeStyle(CassettePalette.lcdGreen))
-        } else if progress > 0.01 {
-            badge(String(format: "%.0f%%", progress * 100), style: settings.accentStyle)
+    private var progressRing: some View {
+        if progress > 0.01 {
+            let style: AnyShapeStyle = progress >= 0.99
+                ? AnyShapeStyle(CassettePalette.lcdGreen)
+                : settings.accentStyle
+            Circle()
+                .inset(by: 2)
+                .trim(from: 0, to: min(progress, 1))
+                .stroke(style, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .shadow(color: .black.opacity(0.55), radius: 2.5, x: 0, y: 2)
+                .clipShape(Circle())
         }
     }
 
@@ -44,19 +52,24 @@ struct CassetteTileView: View {
 
     @ViewBuilder
     private var tapeView: some View {
-        let book = BookGraphicView(
-            title: self.book.title,
-            subtitle: nil,
-            cover: self.book.artworkImage(in: LibraryPaths.artworkFolder),
-            id: self.book.id,
-            openness: 0,
-            showsLabelText: true
-        )
+        let icon = circleArtwork
         if let ns = transitionNamespace, !isPresentingDetail {
-            book.matchedGeometryEffect(id: MatchedID.tape(self.book.id), in: ns)
+            icon.matchedGeometryEffect(id: MatchedID.tape(self.book.id), in: ns)
         } else {
-            book
+            icon
         }
+    }
+
+    /// The book's cover art clipped to a circle, with a progress ring. Shares
+    /// `CircleCoverArt` with the detail hero so the zoom morph scales one circle
+    /// into the other.
+    private var circleArtwork: some View {
+        CircleCoverArt(book: book)
+            .overlay {
+                progressRing
+            }
+            .shadow(color: .black.opacity(0.15), radius: 3, y: 2)
+            .accessibilityLabel(Text(book.title))
     }
 
     @ViewBuilder
@@ -72,15 +85,5 @@ struct CassetteTileView: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .lineLimit(1)
-    }
-
-    private func badge(_ text: String, style: AnyShapeStyle) -> some View {
-        Text(text)
-            .font(CassetteFont.counter(10, weight: .bold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(style, in: Capsule())
-            .foregroundStyle(.white)
-            .shadow(radius: 2)
     }
 }

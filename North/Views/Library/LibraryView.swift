@@ -8,6 +8,9 @@ struct LibraryView: View {
     @ObservedObject var library: LibraryViewModel
     @State private var showImporter = false
     @State private var selectedBook: Audiobook?
+    /// The book currently being renamed, presented in a sheet with title/author
+    /// text fields.
+    @State private var bookToRename: Audiobook?
     /// Bumped by the toolbar's close action to ask the presented detail view
     /// to run its dismiss animation. The detail observes changes and calls its
     /// own `closeAnimated()` so all the fade/blur/morph stays in one place.
@@ -51,6 +54,11 @@ struct LibraryView: View {
                             .padding(.horizontal, 18).padding(.vertical, 10)
                             .cassetteGlass(cornerRadius: 18)
                             .padding(.bottom, 24)
+                        }
+                    }
+                    .sheet(item: $bookToRename) { book in
+                        RenameBookSheet(book: book) { newTitle, newAuthor in
+                            Task { await library.rename(book, title: newTitle, author: newAuthor) }
                         }
                     }
             }
@@ -116,6 +124,11 @@ struct LibraryView: View {
                         }
                         .buttonStyle(.plain)
                         .contextMenu {
+                            Button {
+                                bookToRename = book
+                            } label: {
+                                Label("Rename", systemImage: "pencil")
+                            }
                             Button(role: .destructive) {
                                 Task { await library.delete(book) }
                             } label: {
@@ -185,5 +198,61 @@ private struct EmptyLibraryView: View {
             .cassetteGlass(cornerRadius: 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// A small sheet for editing a book's title and author. Presented from the
+/// library row's context-menu "Rename" action.
+private struct RenameBookSheet: View {
+    let book: Audiobook
+    let onSave: (String, String) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var title: String
+    @State private var author: String
+    @FocusState private var titleFocused: Bool
+
+    init(book: Audiobook, onSave: @escaping (String, String) -> Void) {
+        self.book = book
+        self.onSave = onSave
+        _title = State(initialValue: book.title)
+        _author = State(initialValue: book.author ?? "")
+    }
+
+    private var trimmedTitle: String {
+        title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Title") {
+                    TextField("Title", text: $title, axis: .vertical)
+                        .textInputAutocapitalization(.words)
+                        .focused($titleFocused)
+                }
+                Section("Author") {
+                    TextField("Author", text: $author)
+                        .textInputAutocapitalization(.words)
+                }
+            }
+            .navigationTitle("Rename")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        onSave(title, author)
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                    .disabled(trimmedTitle.isEmpty)
+                }
+            }
+            .onAppear { titleFocused = true }
+        }
+        .presentationDetents([.medium])
     }
 }

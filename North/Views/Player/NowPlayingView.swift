@@ -23,7 +23,6 @@ struct NowPlayingView: View {
                 VStack(spacing: 22) {
                     artwork(size: 240)
                     titleAuthor
-                    OceanWaveView(isPlaying: viewModel.isPlaying)
                     ScrubberView(viewModel: viewModel)
                         .padding(.horizontal, -16)
                     TransportControlsView(viewModel: viewModel)

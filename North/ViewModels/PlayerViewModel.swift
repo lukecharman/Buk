@@ -135,8 +135,7 @@ final class PlayerViewModel: ObservableObject {
         }
     }
 
-    private func attachNowPlaying() {
-        let artworkImage: PlatformImage? = {
+    private func attachNowPlaying() {        let artworkImage: PlatformImage? = {
             guard let name = book.artworkFileName,
                   let data = try? Data(contentsOf: LibraryPaths.artworkFolder.appendingPathComponent(name))
             else { return nil }
@@ -153,6 +152,15 @@ final class PlayerViewModel: ObservableObject {
         nowPlaying.onPreviousChapter = { [weak self] in self?.previousChapter() }
         nowPlaying.onSeek          = { [weak self] time in self?.seek(to: time) }
         nowPlaying.onRateChange    = { [weak self] rate in self?.playbackRate = rate }
+    }
+
+    /// Applies a metadata rename to the live session so the Now Playing screen
+    /// and system controls (lock screen / control centre) reflect the new
+    /// title and author immediately.
+    func applyRename(title: String, author: String?) {
+        book.title = title
+        book.author = author
+        attachNowPlaying()
     }
 
     private func restoreProgress() async {

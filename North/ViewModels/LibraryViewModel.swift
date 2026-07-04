@@ -180,6 +180,24 @@ final class LibraryViewModel: ObservableObject {
         try? await store.save(books)
     }
 
+    /// Renames a book's title/author, persists the change, and updates any live
+    /// player session so the Now Playing screen stays in sync. An empty title is
+    /// rejected; an empty author clears the author.
+    func rename(_ book: Audiobook, title: String, author: String?) async {
+        guard let index = books.firstIndex(where: { $0.id == book.id }) else { return }
+        let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanTitle.isEmpty else { return }
+        let trimmedAuthor = author?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let newAuthor = (trimmedAuthor?.isEmpty ?? true) ? nil : trimmedAuthor
+
+        books[index].title = cleanTitle
+        books[index].author = newAuthor
+        if presentingPlayerBook?.id == book.id {
+            currentPlayer?.applyRename(title: cleanTitle, author: newAuthor)
+        }
+        try? await store.save(books)
+    }
+
     private func insert(_ book: Audiobook) {
         books.removeAll { $0.id == book.id }
         books.insert(book, at: 0)

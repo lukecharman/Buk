@@ -1,23 +1,38 @@
 import SwiftUI
 
+/// The app's four destinations. Declared at file scope so the tab container and
+/// anything that needs to drive selection can share it.
+enum NorthTab: Hashable {
+    case library, discover, settings, player
+}
+
 struct ContentView: View {
     @EnvironmentObject private var library: LibraryViewModel
     @State private var selection: NorthTab = .library
 
     var body: some View {
-        ZStack {
-            tab(.library) { LibraryView(library: library) }
-            tab(.discover) { DiscoverView(library: library) }
-            tab(.settings) { SettingsView() }
-            tab(.player) {
+        TabView(selection: $selection) {
+            Tab("", systemImage: "books.vertical.fill", value: NorthTab.library) {
+                LibraryView(library: library)
+            }
+
+            Tab("", systemImage: "sparkles", value: NorthTab.discover) {
+                DiscoverView(library: library)
+            }
+            .badge(library.activeDownloads.count)
+
+            Tab("", systemImage: "gearshape.fill", value: NorthTab.settings) {
+                SettingsView()
+            }
+
+            // The player lives in its own search-style tab, floating apart on the
+            // trailing side of the tab bar.
+            Tab("", systemImage: "waveform", value: NorthTab.player, role: .search) {
                 PlayerTabView(
                     library: library,
                     onPickFromLibrary: { selection = .library }
                 )
             }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            CustomTabBar(selection: $selection, library: library)
         }
         .onChange(of: library.presentingPlayerBook?.id) { _, newID in
             if library.isRestoringPlayer {
@@ -26,16 +41,6 @@ struct ContentView: View {
             }
             if newID != nil { selection = .player }
         }
-    }
-
-    /// Keeps every destination alive (preserving scroll/search state and avoiding
-    /// reloads) while only the selected one is visible and interactive.
-    @ViewBuilder
-    private func tab<Content: View>(_ tab: NorthTab, @ViewBuilder content: () -> Content) -> some View {
-        content()
-            .opacity(selection == tab ? 1 : 0)
-            .allowsHitTesting(selection == tab)
-            .zIndex(selection == tab ? 1 : 0)
     }
 }
 
